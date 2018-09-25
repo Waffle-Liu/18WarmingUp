@@ -1,0 +1,33 @@
+{% extends "index.html" %}
+{% block menu %}扣款{% endblock %}
+{% block head %}
+{{ super() }} 
+<link rel="stylesheet" href="{{url_for("static",filename="admin.css")}}" type="text/css"/>	
+{% endblock %}
+
+
+{% block content %}
+	<form method="POST" role="form" class="form-inline">
+		<div class="form-group">
+			{{ form.hidden_tag() }}
+			{{ form.company(class="form-control") }}号公司扣款{{ form.money(class="form-control") }}万元
+			<br><br>
+			<div class="control ">
+				{{ form.submit(class="btn btn-primary btn-block ") }}
+			</div>
+		</div>
+	</form>
+{% endblock %}
+
+{% block scripts %}
+
+$(document).ready(function(){
+  $(".btn").click(function(){
+	  		if(!confirm("确认提交吗?")) return false
+		});
+});
+{% endblock %}
+
+{% block introduction %}
+    请勿留空提交
+{% endblock %}

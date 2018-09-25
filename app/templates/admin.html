@@ -1,0 +1,71 @@
+{% extends "index.html" %}
+
+{% block head1 %}
+    {{ super() }}
+    <style>
+        .menu {
+            margin-bottom: 20px;
+        }
+
+        .btn {
+            width: 330px;
+            height: 50px;
+        }
+    </style>
+{% endblock %}
+
+
+
+{##}
+{#{% block content1 %}#}
+{#    <div class="container">#}
+{#        <form method="POST">#}
+{#            {{ form.hidden_tag() }}#}
+{#            <div class="menu">#}
+{#                {{ form.submit2(class="btn btn-primary btn-submit ") }}#}
+{#            </div>#}
+{#            <div class="menu">#}
+{#                {{ form.submit3(class="btn btn-primary btn-submit") }}#}
+{#            </div>#}
+{#            <div class="menu">#}
+{#                {{ form.submit4(class="btn btn-danger btn-submit") }}#}
+{#            </div>#}
+{#            <div class="menu">#}
+{#                {{ form.submit8(class="btn btn-primary btn-submit") }}#}
+{#            </div>#}
+{#            <div class="menu">#}
+{#                {{ form.submit1(class="btn btn-primary btn-submit nohrefBtn") }}#}
+{#                {{ form.company1.label }}#}
+{#                {{ form.company1() }}#}
+{#            </div>#}
+{#            <div class="menu">#}
+{#                {{ form.submit6(class="btn btn-primary btn-submit nohrefBtn") }}#}
+{#                {{ form.company2.label }}#}
+{#                {{ form.company2() }}#}
+{#            </div>#}
+{#            <div class="menu">#}
+{#                {{ form.submit7(class="btn btn-primary btn-submit nohrefBtn") }}#}
+{#                {{ form.company3.label }}#}
+{#                {{ form.company3() }}#}
+{#            </div>#}
+{##}
+{#            <div class="menu">#}
+{#                {{ form.submit5(class="btn btn-success btn-submit btn_next") }}#}
+{#            </div>#}
+{#        </form>#}
+{#    </div>#}
+{#{% endblock %}#}
+{##}
+{#{% block scripts1 %}#}
+{#    {{ super() }}#}
+{#    <script type="text/javascript">#}
+{#        $(document).ready(function () {#}
+{#            $(".btn.nohrefBtn").click(function () {#}
+{#                if (!confirm("确认提交吗?")) return false;#}
+{#            })#}
+{#            $(".btn.btn_next").click(function () {#}
+{#                if (!confirm("确认清算吗?")) return false;#}
+{#            })#}
+{#        });#}
+{#    </script>#}
+{#{% endblock %}#}

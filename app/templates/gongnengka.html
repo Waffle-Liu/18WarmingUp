@@ -1,0 +1,39 @@
+{% extends "index.html" %}
+{% block menu %}功能卡购买{% endblock %}
+{% block head %}
+    {{ super() }}
+    <link rel="stylesheet" href="{{ url_for("static",filename="admin.css") }}" type="text/css"/>
+{% endblock %}
+{% block content %}
+    <div class="container">
+        {% for message in get_flashed_messages() %}
+            <div class="alert alert-warning">
+                <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+                {{ message }}
+            </div>
+        {% endfor %}
+        <form method="POST" role="form" class="form-inline">
+            <div class="form-group">
+                {{ form.hidden_tag() }}
+                {{ form.company(class="form-control") }}号公司以{{ form.price(class="form-control") }}万元的价格购买了{{ form.num(class="form-control") }}号功能卡
+                <br><br>
+                <div class="control">
+                    {{ form.submit(class="btn btn-primary btn-block") }}
+                </div>
+            </div>
+        </form>
+    </div>
+{% endblock %}
+
+{% block scripts %}
+    $(document).ready(function(){
+    $(".btn").click(function(){
+    if(!confirm("确认提交吗?")) return false
+    });
+    });
+{% endblock %}
+
+{#todo:添加使用说明#}
+{% block introduction %}
+    请勿留空提交
+{% endblock %}

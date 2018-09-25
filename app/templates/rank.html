@@ -1,0 +1,174 @@
+{% extends "bootstrap/base.html" %}
+{% block title %}排行榜{% endblock %}
+{% block head %}
+	{{ super() }}
+	<link rel="shortcut icon" href="{{url_for('static',filename='itp.ico')}}">
+	<style>
+        body,button, input, select, textarea,h1 ,h2, h3, h4, h5, h6,th { font-family: Microsoft YaHei,'宋体' , Tahoma, Helvetica, Arial, "\5b8b\4f53", sans-serif;}
+        body {
+            width: 1000px;
+            margin: 40px auto;
+            font-family: 'trebuchet MS', 'Lucida sans', Arial;
+            font-size: 30px;
+            color: #444;
+        }
+
+        table {
+            *border-collapse: collapse; /* IE7 and lower */
+            border-spacing: 0;
+            width: 100%;
+        }
+
+        .bordered {
+			margin-top:20px;
+            border: solid #ccc 1px;
+            -moz-border-radius: 6px;
+            -webkit-border-radius: 6px;
+            border-radius: 6px;
+            -webkit-box-shadow: 0 1px 1px #ccc;
+            -moz-box-shadow: 0 1px 1px #ccc;
+            box-shadow: 0 1px 1px #ccc;
+        }
+
+        .bordered tr:hover {
+            background: rgb(247,247,249);
+            -o-transition: all 0.1s ease-in-out;
+            -webkit-transition: all 0.1s ease-in-out;
+            -moz-transition: all 0.1s ease-in-out;
+            -ms-transition: all 0.1s ease-in-out;
+            transition: all 0.1s ease-in-out;
+        }
+
+        .bordered td, .bordered th {
+            border-left: 1px solid #ccc;
+            border-top: 1px solid #ccc;
+            padding: 10px;
+            text-align: left;
+        }
+
+        .bordered th {
+            background-color: #dce9f9;
+            background-image: -webkit-gradient(linear, left top, left bottom, from(#ebf3fc), to(#dce9f9));
+            background-image: -webkit-linear-gradient(top, #ebf3fc, #dce9f9);
+            background-image:    -moz-linear-gradient(top, #ebf3fc, #dce9f9);
+            background-image:     -ms-linear-gradient(top, #ebf3fc, #dce9f9);
+            background-image:      -o-linear-gradient(top, #ebf3fc, #dce9f9);
+            background-image:         linear-gradient(top, #ebf3fc, #dce9f9);
+            -webkit-box-shadow: 0 1px 0 rgba(255,255,255,.8) inset;
+            -moz-box-shadow:0 1px 0 rgba(255,255,255,.8) inset;
+            box-shadow: 0 1px 0 rgba(255,255,255,.8) inset;
+            border-top: none;
+            text-shadow: 0 1px 0 rgba(255,255,255,.5);
+        }
+
+        .bordered td:first-child, .bordered th:first-child {
+            border-left: none;
+        }
+
+        .bordered th:first-child {
+            -moz-border-radius: 6px 0 0 0;
+            -webkit-border-radius: 6px 0 0 0;
+            border-radius: 6px 0 0 0;
+        }
+
+        .bordered th:last-child {
+            -moz-border-radius: 0 6px 0 0;
+            -webkit-border-radius: 0 6px 0 0;
+            border-radius: 0 6px 0 0;
+        }
+
+        .bordered th:only-child{
+            -moz-border-radius: 6px 6px 0 0;
+            -webkit-border-radius: 6px 6px 0 0;
+            border-radius: 6px 6px 0 0;
+        }
+
+        .bordered tr:last-child td:first-child {
+            -moz-border-radius: 0 0 0 6px;
+            -webkit-border-radius: 0 0 0 6px;
+            border-radius: 0 0 0 6px;
+        }
+
+        .bordered tr:last-child td:last-child {
+            -moz-border-radius: 0 0 6px 0;
+            -webkit-border-radius: 0 0 6px 0;
+            border-radius: 0 0 6px 0;
+        }
+		thead {
+			background-color:rgb(143,4,1);
+		}
+
+		.background{width: 100%;height:100%;z-index: -999;position: fixed;left:0px;top:0px}
+
+        .noticeBox{
+            width:100%;
+            height:200px;
+            font-size:32px;
+            margin-top:50px;
+            text-align:center;
+        }
+        .noticeBox>div{
+            display:inline-block;
+            margin-left:50px;
+            margin-right:50px;
+        }
+        .noticeBox .type{
+            width:200px;
+            height:80px;
+        
+        }
+    </style>
+{% endblock %}
+{% block content %}
+
+<h1>资产排行榜</h1>
+<!--<h3>第{{ round - 1 }}轮无人机市场容量: {{capacity}} 单位</h3>-->
+<!--<h3>第{{ round - 1 }}轮A材料价格: {{material_a}} 万/单位</h3>-->
+<!--<h3>第{{ round - 1 }}轮无人机最高成交价: {{max_price}} 万/单位</h3>-->
+<table class="bordered">
+    <thead>
+    <tr>
+        <th>排名</th>
+        <th>企业</th>
+        <th>现金资产(万元）</th>
+    </tr>
+    </thead>
+
+	{% for i in [0,1,2,3,4,5,6,7,8] %}
+	
+    {% if term[i][2]==0 %}
+	<tr class="bg-warning">
+		{% if i>0 and (term[i][0] == term[i-1][0]) %}
+		<td>{{ i }}</td>
+		{% else %}
+		<td>{{ i+1 }}</td>
+		{% endif %}
+		<td>{{ term[i][1] }}</td>
+		<td>{{ term[i][0] }}</td>
+	</tr>
+    {% else %}
+    <tr class="bg-success">
+		{% if i>0 and (term[i][0] == term[i-1][0]) %}
+		<td>{{ i }}</td>
+		{% else %}
+		<td>{{ i+1 }}</td>
+		{% endif %}
+		<td>{{ term[i][1] }}</td>
+		<td>{{ term[i][0] }}</td>
+	</tr>
+    {% endif %}
+	{% endfor %}
+	
+
+</table>
+<div class="noticeBox">
+    <div>
+        <div class="bg-warning type"></div> 碳纤维公司
+    </div>
+    <div>
+        <div class="bg-success type"></div> 无人机公司
+    </div>
+</div>
+                        <!--最好还能显示排名变化情况-->
+	<div class="background"><img src="{{url_for("static",filename="back.png")}}"</div>
+{% endblock %}

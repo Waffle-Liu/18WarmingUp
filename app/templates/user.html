@@ -1,0 +1,236 @@
+{% extends "bootstrap/base.html" %}
+{% block head %}
+	{{super()}}
+	<link rel="shortcut icon" href="{{url_for('static',filename='itp.ico')}}">
+	<link rel="stylesheet" href="{{url_for('static',filename='style.css')}}" type="text/css"/>	
+	<link rel="stylesheet" href="{{url_for('static',filename='buttons.css')}}" type="text/css"/>
+{% endblock %}
+{% block title %}Warming Up - ITP{% endblock %}
+
+{% block content %}
+
+		<div  id="logo"><img src="{{url_for('static',filename='logo.png')}}"</div>
+
+
+
+    <div class="row">
+        <div class="col-md-3 account">  <!--账户信息，显示现金、仓储等情况-->		
+			<div class="info-heading">
+						<h4 class="info-title">账户信息</h4>
+					</div>
+			<div class="info-body">
+				 <table class="table">
+					 		<tr>
+								<td>现金</td>
+								<td><span class="totalmoney">{{ Accountdata["cash"] }}</span>万元</td>
+							</tr>
+					 		{% if Accountdata["type"]==0 %}
+								{% for material in Accountdata["material"] %}
+									<tr>
+										<td>所在市场</td>
+										{% if material[0] == 0 %}
+										<td><span class="resource">南方市场</span></td>
+										{% endif %}
+										{% if material[0] == 1 %}
+										<td><span class="resource">北方市场</span></td>
+										{% endif %}
+										{% if material[0] == 2 %}
+										<td><span class="resource">西方市场</span></td>
+										{% endif %}
+									</tr>
+									<tr>
+										<td>白酒成本/质量</td>
+										<td><span class="resource">{{ material[1] }}</span>元</td>
+									</tr>
+									<tr>
+										<td>数量</td>
+										<td><span class="resource">{{ material[2] }}</span>万单位</td>
+									</tr>
+								{% endfor %}
+					 		{% endif %}
+							{% if Accountdata["type"]==1 %}
+								{% for chip in Accountdata["chip"] %}
+					 				{% if chip[2] != 0 %}
+									<tr>
+										<td>所在市场</td>
+										{% if chip[0] == 0 %}
+										<td><span class="resource">南方市场</span></td>
+										{% endif %}
+										{% if chip[0] == 1 %}
+										<td><span class="resource">北方市场</span></td>
+										{% endif %}
+										{% if chip[0] == 2 %}
+										<td><span class="resource">西方市场</span></td>
+										{% endif %}
+									</tr>
+									<tr>
+										<td>白酒成本/质量</td>
+										<td><span class="resource">{{ chip[1] }}</span>元</td>
+									</tr>
+									<tr>
+										<td>数量</td>
+										<td><span class="resource">{{ chip[2] }}</span>万单位</td>
+									</tr>
+					 				{% endif %}
+								{% endfor %}
+							{% endif %}
+						</table>
+			</div>        		
+			<div class="info-heading">
+						<h4 class="info-title">贷款情况</h4>
+			</div>
+			<div class="debt info-body">
+				<ul>
+					{% for loan in Accountdata["loan"] %}
+							{% if loan[0] %}   <!--金额不为0-->
+								<li>
+								{% if loan[0]>0 %}借出：{% else %}借得：{% endif %}
+								{{ loan[3] }}号公司
+								{{ loan[0]|abs }}万元，第{{ loan[2] }}轮归还，利息为{{ loan[1]*100 }}%</li>
+							{% endif %}
+						
+					{% endfor %}						
+				</ul>
+			</div>
+
+
+			<!--<div class="info-heading">
+						<h4 class="info-title">投资情况</h4>
+			</div>
+					<div class="info-body">
+						<table class="table">
+							<tr>
+								<td>房地产行业</td>
+								<td><span class="fangchan">{{ Accountdata["invest"][1] }}</span>万元</td>
+							</tr>
+							<tr>
+								<td>新能源行业</td>
+								<td><span class="nengyuan">{{ Accountdata["invest"][2] }}</span>万元</td>
+							</tr>
+							<tr>
+								<td>医疗行业</td>
+								<td><span class="yiliao">{{ Accountdata["invest"][3] }}</span>万元</td>
+							</tr>
+							<tr>
+								<td>物流行业</td>
+								<td><span class="wuliu">{{ Accountdata["invest"][4] }}</span>万元</td>
+							</tr>
+						</table>
+					<!--</div>-->
+		</div>
+        <div class="col-md-6 operationzone">
+			{% for message in get_flashed_messages() %}
+			<div class="alert alert-danger">
+				<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>				
+				{{ message }}	
+			</div>	
+			{% endfor %}
+			{% if game_round!=6 %}
+			<div class="info-heading" id="op-head"><h4 class="info-title">用户操作面板 第{{ game_round }}轮</h4></div>
+			{% else %}
+			<div class="info-heading" id="op-head"><h4 class="info-title">游戏结束</h4></div>
+			{% endif %}
+			<br></br>
+			<button type="button" class="btn btn-primary bill pull-right" data-container="body" data-toggle="popover" data-placement="right">查看上轮清算环节账单</button>	
+			<ul role="navigation" class="nav nav-tabs">
+				{% if Accountdata['type']==1 %}
+				<li role="presentation" class="active" id="tab01"><a href="#">销售投入</a></li>
+				<li role="presentation"  id="tab02"><a href="#">投放市场</a></li>
+				{% endif %}
+				{% if Accountdata['type']==0 %}
+				<li role="presentation" id="tab02"><a href="#">生产</a></li>
+				{% endif %}
+			</ul>
+			<div class="caigou"><br>
+				<!--{% if Accountdata["type"]==1 %}
+				<p>本轮原材料单价为<span class="price">
+					{{material_b[game_round]}}
+				</span>万元</p>
+				{% endif %}-->
+				{% if Accountdata["type"]==1 %}
+					<form method="POST" name="op-form">
+						{{ Xiaoshouform.hidden_tag()}}
+						<div class="form-group">
+							{{ Xiaoshouform.investamount.label }}
+							{{ Xiaoshouform.investamount(class="form-control buyamount")}}
+							<!--<p class="help-block">总价：<span class="totalpay">1000</span>万元</p>     --> <!--可以定义函数--> <!--多买会降价 还没做-->
+							<!-- <p class="help-block">现金余额：<span class="moneyleft">1000</span>万元</p> --> <!--待修改-->
+							<p class="help-block">温馨提醒：请预留足够现金用于支付原料储存费等。</p>
+						</div>
+						<div>
+							{{ Xiaoshouform.submit(class="btn btn-primary btn-submit")}}
+						</div>
+					</form>
+				{% endif %}
+				</div>
+			<div class="shengchan"><br>
+                <form method="POST" name="op-form">
+					<div class="form-group">
+						{{ Shengchanform.hidden_tag()}}
+						{{ Shengchanform.position.label }}
+						{{ Shengchanform.position(class="form-control")}}
+
+						{{ Shengchanform.hidden_tag()}}
+						{{ Shengchanform.produceamount.label }}
+						{{ Shengchanform.produceamount(class="form-control")}}
+
+						{{ Shengchanform.hidden_tag()}}
+						{{ Shengchanform.produceprice.label }}
+						{{ Shengchanform.produceprice(class="form-control")}}
+
+						{% if Accountdata['type']==1 %}
+						{{ Shengchanform.hidden_tag()}}
+						{{ Shengchanform.sellprice.label }}
+						{{ Shengchanform.sellprice(class="form-control")}}
+						{% endif %}
+
+						<p class="help-block">温馨提醒：请预留足够现金用于支付原料储存费等。</p>
+					</div>
+					<div class="confirmbtn">
+							{{ Shengchanform.submit(class="btn btn-primary btn-submit")}}
+						</div>
+				</form>
+			</div>
+		</div>
+		<div class="log pull-right">
+                <div class="info-heading">
+					 <h4 class="info-title">清算信息</h4>
+				</div>
+				<div class="info-body">
+					<table class="table">
+						<tr>
+                            <td>清算前资金</td>
+                            <td>{{ Thislog["initmoney"] }}万元</td>
+                        </tr>
+						{% if Accountdata["type"] == 1 %}
+						<tr>
+                            <td>出售收益</td>
+                            <td>{{ Thislog["gain_sell"] }}万元</td>
+                        </tr>
+						{% endif %}
+						
+						<tr>
+                            <td>折旧费</td>
+                            <td>-{{ Thislog["depreciation"] }}万元</td>
+                        </tr>
+						<!--<tr>-->
+                            <!--<td>库存仓储费</td>-->
+                            <!--<td>-{{ Thislog["storage"] }}万元</td>-->
+                        <!--</tr>-->
+						<tr>
+                            <td>贷款</td>
+                            <td>{{ Thislog["loan"] }}万元</td>
+                        </tr>
+					</table>
+				</div>
+			
+		</div>
+    </div>
+
+	<div class="footerRight pull-right"><p>浙江大学创新与创业管理强化班 © 2016</p></div>
+	<div class="background"><img src="{{url_for("static",filename="back.png")}}"</div>
+{% endblock %}
+{% block scripts %}
+    {{ super() }}
+    <script src="{{url_for('static',filename='user.js')}}"></script>   
+{% endblock %}

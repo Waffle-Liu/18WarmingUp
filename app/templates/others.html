@@ -1,0 +1,47 @@
+{% extends "index.html" %}
+{% block menu %}其他管理{% endblock %}
+
+{% block head %}
+    {{ super() }}
+    <link rel="stylesheet" href="{{ url_for("static",filename="admin.css") }}" type="text/css"/>
+{% endblock %}
+
+{% block content %}
+    <ul class="list-group">
+        <li class="list-group-item">
+            {{ form.submit1(class="btn btn-primary btn-submit nohrefBtn") }}
+            {{ form.company1.label }}
+            {{ form.company1(placeholder="请填写公司序号") }}
+        </li>
+        <li class="list-group-item">
+            {{ form.submit6(class="btn btn-primary btn-submit nohrefBtn") }}
+            {{ form.company2.label }}
+            {{ form.company2(placeholder="请填写公司序号") }}
+        </li>
+        <li class="list-group-item">
+            {{ form.submit7(class="btn btn-primary btn-submit nohrefBtn") }}
+            {{ form.company3.label }}
+            {{ form.company3(placeholder="请填写公司序号") }}
+        </li>
+        <li class="list-group-item">
+                {{ form.submit5(class="btn btn-success btn-submit btn_next") }}
+        </li>
+    </ul>
+{% endblock %}
+
+
+{% block scripts %}
+    $(document).ready(function () {
+    $(".btn.nohrefBtn").click(function () {
+    if (!confirm("确认提交吗?")) return false;
+    })
+    $(".btn.btn_next").click(function () {
+    if (!confirm("确认清算吗?")) return false;
+    })
+    });
+{% endblock %}
+
+{#todo:添加使用说明#}
+{% block introduction %}
+    请勿留空提交
+{% endblock %}

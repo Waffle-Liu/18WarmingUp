@@ -1,0 +1,36 @@
+{% extends "bootstrap/base.html" %}
+{% block title %}账户查看{% endblock %}
+<meta http-equiv="refresh" content="10"></meta> 
+{% block content %}
+<div class="row">
+	<div class="col-md-12 panel panel-primary">		
+		<div class="panel-heading">
+			<h2 class="panel-title">账户信息</h2>
+		</div>
+
+		<div class="panel-body">
+			<table class="table">
+				<tr>
+					<td>现金</td>
+					<td><span class="totalmoney">{{ Accountdata["cash"] }}</span>万元</td>
+				</tr>
+				<tr>
+					<td>原料</td>
+					<td><span class="resource">{{ Accountdata["material"] }}</span>吨</td>
+				</tr>			
+				<tr>
+					<td>芯片</td>
+					<td><span class="prouct">{{ Accountdata["product"] }}</span>吨</td>
+				</tr>
+			</table>
+		</div>          
+	</div>
+</div>
+
+
+{% endblock %}
+
+{#todo:添加使用说明#}
+{% block introduction%}
+
+{% endblock %}

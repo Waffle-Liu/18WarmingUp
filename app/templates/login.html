@@ -1,0 +1,21 @@
+{% extends "bootstrap/base.html" %}
+
+{% block title %}ITP WU{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-3">
+    </div>
+	
+    <div class="col-md-6 login" >
+		<form method = "POST">
+			 {{ form.hidden_tag() }}
+			{{ form.companytype.label }}
+			{{ form.companytype(class="form-control") }}
+
+			{{ form.submit(class="btn btn-primary") }}
+		</form>
+	</div>
+</div>
+
+{% endblock %}

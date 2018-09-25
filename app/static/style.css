@@ -1,0 +1,17 @@
+body,button, input, select, textarea,h1 ,h2, h3, h4, h5, h6,p { font-family: Microsoft YaHei,'����' , Tahoma, Helvetica, Arial, "\5b8b\4f53", sans-serif;}
+.login { position: relative;top: 50px;}
+.operationzone {width:50%;margin-left:0px; }
+.moneyleft, .totalpay{font-weight: bold;color: RED;}
+#logo{margin-top:10px;position:relative;left:20px}
+.background{width: 100%;height:100%;z-index: -999;position: fixed;left:0px;top:0px}
+#opdash{font-size:20px;text-align:center;padding-top:10px;padding-bottom:10px;}
+.footerRight{position:relative;right:110px;top:280px;}
+.info-heading{margin-top:20px;border-style:solid ;border-color:rgb(143,4,1);background-color:rgb(143,4,1);border-top-left-radius: 10px;border-top-right-radius: 10px;height:40px}
+.info-body{border-style:solid;border-color:rgb(143,4,1)}
+.info-body  li{border-bottom:solid 2px GREY;border-bottom-style:dotted;margin-left:0;font-size:16px;}
+.info-body  tr{border-bottom:solid 2px GREY;border-bottom-style:dotted;margin-left:0;font-size:16px;}
+.info-title{color:WHITE;margin-left:20px;}
+#op-head{border-radius: 10px;height:46px}
+.touzi, .caigou,.shengchan, .xiaoshou{border:solid 15px white;padding:13px;border-radius:10px}
+a {background-color:rgb(143,4,1);color:WHITE}
+.log{position:relative;right:140px;width:15%}
