@@ -10,7 +10,7 @@
 	<form method="POST" role="form" class="form-inline">
 		<div class="form-group">
 			{{ form.hidden_tag() }}
-			{{ form.company(class="form-control") }}号公司扣款{{ form.money(class="form-control") }}万元
+			{{ form.company(class="form-control") }}号公司 {{ form.choice(class="form-control") }} 了{{ form.money(class="form-control") }}万元
 			<br><br>
 			<div class="control ">
 				{{ form.submit(class="btn btn-primary btn-block ") }}

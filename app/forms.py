@@ -4,6 +4,7 @@ from flask_wtf import Form
 from wtforms import SelectField,SubmitField,StringField
 from wtforms.validators import Regexp
 
+
 class LoginForm(Form):   #登陆页面， 资源包选择  
 	companytype = SelectField("请选择公司类型",choices=[("0","A"),("1","B")])
 	# resourcepack = SelectField("请选择仓库类型",choices = [("0","500平米仓库"),("1","800平米仓库")])  #choices=[value,label],default str type
@@ -47,21 +48,19 @@ class nextform(Form):
 	company2 = StringField("公司序号")
 	company3 = StringField("公司序号")
 	submit = SubmitField("确定")
-	submit1 = SubmitField("降低加工费")
 	submit2 = SubmitField("贷款")
 	submit3 = SubmitField("交易")
 	submit4 = SubmitField("扣款")
 	submit5 = SubmitField("清算")
-	submit6 = SubmitField("仓库租赁")
-	submit7 = SubmitField("500万融资")
 	submit8 = SubmitField("功能卡购买")
+
 
 class gongnengkaForm(nextform):   #XX公司以XX价格购入XX号功能卡
 	company = StringField()
 	price = StringField()
 	num = StringField()
 	submit = SubmitField("确定")
-	
+
 
 class debtform(nextform):  #XX公司向XX公司借得XX万元，约定第X轮后归还，总利息为XX%
 	debtTo = StringField()
@@ -81,7 +80,10 @@ class trade(nextform):  #XX公司向XX公司购买XX市场上的成本为XX的�
 	submit = SubmitField("确定")
 
 
-
 class fineform(nextform):
 	company = StringField()
 	money = StringField()
+	choice = SelectField(choices=[("0", "罚款"), ("1", "增加")])
+
+
+

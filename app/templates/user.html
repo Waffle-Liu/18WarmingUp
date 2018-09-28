@@ -170,9 +170,11 @@
 						{{ Shengchanform.position.label }}
 						{{ Shengchanform.position(class="form-control")}}
 
+						{% if Accountdata['type']==0 %}
 						{{ Shengchanform.hidden_tag()}}
 						{{ Shengchanform.produceamount.label }}
 						{{ Shengchanform.produceamount(class="form-control")}}
+						{% endif %}
 
 						{{ Shengchanform.hidden_tag()}}
 						{{ Shengchanform.produceprice.label }}

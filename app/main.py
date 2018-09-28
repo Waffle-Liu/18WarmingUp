@@ -63,9 +63,12 @@ def index():
 			finally:
 				return redirect(url_for("index"))
 		else:               #提交第三个表单：生产
-			amount = float(Shengchanform.produceamount.data)
 			price = float(Shengchanform.produceprice.data)
 			position = int(Shengchanform.position.data)
+			if Shengchanform.produceamount.data:
+				amount = float(Shengchanform.produceamount.data)
+			else:
+				amount = 0.0
 			if Shengchanform.sellprice.data:
 				sellprice = float(Shengchanform.sellprice.data)
 			else:
@@ -113,29 +116,17 @@ def forseller(num):
 @app.route("/admin",methods=["GET","POST"])
 def admin():
 	form = nextform()
-	if request.method == 'POST' :
-		if "submit1" in request.form:
-			company1 = int(form.company1.data)
-			dealwith.reducefee(company1)
-			return redirect(url_for("admin"))
-		elif "submit2" in request.form:
-			return redirect(url_for("inloan"))
+	if request.method == 'POST':
+		if "submit2" in request.form:
+			return redirect(url_for("loan"))
 		elif "submit3" in request.form:
-			return redirect(url_for("intrade"))
+			return redirect(url_for("trade"))
 		elif "submit4" in request.form:
 			return redirect(url_for("fine"))
-		elif "submit6" in request.form:
-			company2=int(form.company2.data)
-			dealwith.rentStorage(company2)
-			return redirect(url_for("admin"))
-		elif "submit7" in request.form:
-			company3=int(form.company3.data)
-			dealwith.finance(company3)
-			return redirect(url_for("admin"))
 		elif "submit8" in request.form:
 			return redirect(url_for("gongnengka"))
 		else:  #清算
-			dealwith.nextround()  #生成的Log存进文件
+			#dealwith.nextround()  #生成的Log存进文件
 			return redirect(url_for("admin"))
 	return render_template("admin.html",form = form,round =gl.game_round,capacity=gl.capacity)
 
@@ -143,22 +134,23 @@ def admin():
 @app.route("/others",methods=["GET","POST"])
 def others():
 	form = nextform()
-	if request.method == 'POST' :
-		if "submit1" in request.form:
-			company1 = int(form.company1.data)
-			dealwith.reducefee(company1)
-			return redirect(url_for("others"))
-		elif "submit6" in request.form:
-			company2=int(form.company2.data)
-			dealwith.rentStorage(company2)
-			return redirect(url_for("others"))
-		elif "submit7" in request.form:
-			company3=int(form.company3.data)
-			dealwith.finance(company3)
-			return redirect(url_for("others"))
-		elif "submit5" in request.form:
-			dealwith.nextround()  #生成的Log存进文件
-			return redirect(url_for("others"))
+	# if request.method == 'POST':
+		# if "submit1" in request.form:
+		# 	company1 = int(form.company1.data)
+		# 	dealwith.reducefee(company1)
+		# 	return redirect(url_for("others"))
+		# elif "submit6" in request.form:
+		# 	company2=int(form.company2.data)
+		# 	dealwith.rentStorage(company2)
+		# 	return redirect(url_for("others"))
+		# elif "submit7" in request.form:
+		# 	company3=int(form.company3.data)
+		# 	dealwith.finance(company3)
+		# 	return redirect(url_for("others"))
+
+	# if form.validate_on_submit():
+	dealwith.nextround()  #生成的Log存进文件
+		#return redirect(url_for("others"))
 	return render_template("others.html",form = form,round =gl.game_round,capacity=gl.capacity)
 
 
@@ -217,7 +209,8 @@ def fine():        #某公司扣除一定现金
 	if form.validate_on_submit():
 		company = int(form.company.data)
 		money = float(form.money.data)    #扣款可能导致负数
-		dealwith.fine(money,company)
+		choice = int(form.choice.data)
+		dealwith.fine(money,company,choice)
 		return redirect(url_for("fine"))
 	return render_template("fine.html",form = form,round =gl.game_round,capacity=gl.capacity)
 	

@@ -18,7 +18,7 @@ import gl
 
 
 class OperationFail(Exception):  #定义异常：操作失败
-    pass
+	pass
 
 
 # 以下为各公司对应json文件dict中的信息
@@ -39,49 +39,49 @@ class OperationFail(Exception):  #定义异常：操作失败
 
 # 投资 I1 I2 I3 I4分别为对四种行业的投资金额，num为公司编号
 def invest(I1,I2,I3,I4,num):
-    f=open(path+chr(48+num)+".json","r")
-    temp_txt=f.read()
-    now_info=json.loads(temp_txt)
-    f.close()
-    now_info['invest'][1]+=I1
-    now_info['invest'][2]+=I2
-    now_info['invest'][3]+=I3
-    now_info['invest'][4]+=I4
-    total=(I1+I2+I3+I4)
-    if now_info['cash'] < total: #钱不够
-        raise OperationFail("现金不足，操作失败")
-    now_info['cash']-=total
-    now_info['cash'] = round(now_info['cash'],1)
-    shutil.copyfile(path+chr(48+num)+".json",path+chr(48+num)+"_bak.json")
-    f=open(path+chr(48+num)+".json","w")
-    json.dump(now_info,f)
-    f.close()
+	f=open(path+chr(48+num)+".json","r")
+	temp_txt=f.read()
+	now_info=json.loads(temp_txt)
+	f.close()
+	now_info['invest'][1]+=I1
+	now_info['invest'][2]+=I2
+	now_info['invest'][3]+=I3
+	now_info['invest'][4]+=I4
+	total=(I1+I2+I3+I4)
+	if now_info['cash'] < total: #钱不够
+		raise OperationFail("现金不足，操作失败")
+	now_info['cash']-=total
+	now_info['cash'] = round(now_info['cash'],1)
+	shutil.copyfile(path+chr(48+num)+".json",path+chr(48+num)+"_bak.json")
+	f=open(path+chr(48+num)+".json","w")
+	json.dump(now_info,f)
+	f.close()
 
 # 采购原料 total为原材料采购数量，num为公司编号
 def purchase(total,num):
-    f=open(path+chr(48+num)+".json","r")
-    temp_txt=f.read()
-    now_info=json.loads(temp_txt)
-    f.close()
+	f=open(path+chr(48+num)+".json","r")
+	temp_txt=f.read()
+	now_info=json.loads(temp_txt)
+	f.close()
 #
 #  判断是否买得起
-#	
-    if now_info['type']==0:
-        if now_info['cash'] < material_a[gl.game_round]*total:
-            raise OperationFail("现金不足，操作失败")
-        else:
-            now_info['cash']-=material_a[gl.game_round]*total   #定价曲线函数 待做》》》》》》》》》》》》》》》》》》》》》》
-    else:
-        if now_info['cash'] < (material_b[gl.game_round] * total):
-            raise OperationFail("现金不足，操作失败")
-        else:
-            now_info['cash'] -= material_b[gl.game_round]*total
-    now_info['material']+=total
-    now_info['cash'] = round(now_info['cash'],1)
-    shutil.copyfile(path+chr(48+num)+".json",path+chr(48+num)+"_bak.json")
-    f=open(path+chr(48+num)+".json","w")
-    json.dump(now_info,f)
-    f.close()
+#
+	if now_info['type']==0:
+		if now_info['cash'] < material_a[gl.game_round]*total:
+			raise OperationFail("现金不足，操作失败")
+		else:
+			now_info['cash']-=material_a[gl.game_round]*total   #定价曲线函数 待做》》》》》》》》》》》》》》》》》》》》》》
+	else:
+		if now_info['cash'] < (material_b[gl.game_round] * total):
+			raise OperationFail("现金不足，操作失败")
+		else:
+			now_info['cash'] -= material_b[gl.game_round]*total
+	now_info['material']+=total
+	now_info['cash'] = round(now_info['cash'],1)
+	shutil.copyfile(path+chr(48+num)+".json",path+chr(48+num)+"_bak.json")
+	f=open(path+chr(48+num)+".json","w")
+	json.dump(now_info,f)
+	f.close()
 
 # 公司生产 total为生产数量，num为公司编号，price为当前产品定价
 def produce(num,total,price,sellprice,position):
@@ -99,12 +99,12 @@ def produce(num,total,price,sellprice,position):
 	flag1 = 0
 	if now_info['type'] == 0 and total * price > now_info["cash"]:   #钱不够
 		raise OperationFail("现金不足，操作失败")
-	elif now_info['type'] == 1:    #材料不够
-		for i in range(len(now_info["chip"])):
+	elif now_info['type'] == 1:		#材料不够
+		for i in range(len(now_info["chip"])):		#找到这款芯片
 			if position == now_info["chip"][i][0] and price == now_info["chip"][i][1]:
+				total = now_info["chip"][i][2]
+				now_info["chip"][i][2] = 0.0
 				flag1 = 1
-				if total > now_info["chip"][i][2]:
-					raise OperationFail("材料不足，操作失败")
 				break
 		if flag1 == 0:
 			raise OperationFail("该市场无此原材料，操作失败")
@@ -114,7 +114,6 @@ def produce(num,total,price,sellprice,position):
 		for i in range(len(now_info["product"])):
 			if position == now_info["product"][i][0] and price == now_info["product"][i][1]:
 				now_info["product"][i][2] += total
-				now_info["chip"][i][2] -=total
 				flag2 = 1
 				break
 		if flag2 == 0:
@@ -139,8 +138,7 @@ def produce(num,total,price,sellprice,position):
 			material.append(price)
 			material.append(total)
 			now_info['material'].append(material)
-
-	now_info['cash'] -= total * price  # 余额
+		now_info['cash'] -= total * price  # 余额
 
 	now_info['cash'] = round(now_info['cash'],1)
 	shutil.copyfile(path+chr(48+num)+".json",path+chr(48+num)+"_bak.json")
@@ -149,15 +147,19 @@ def produce(num,total,price,sellprice,position):
 	f.close()
 
 # 违规罚款 total为罚款金额，num为公司编号
-def fine(total,num):
+def fine(total,num,choice):
 	f=open(path+chr(48+num)+".json","r")
 	temp_txt=f.read()
 	now_info=json.loads(temp_txt)
 	f.close()
-	if now_info['cash'] < total: #钱不够
-		# raise OperationFail("现金不足，操作失败")
-		pass
-	now_info['cash']-=total
+	if choice == 0:
+		if now_info['cash'] < total: #钱不够
+			# raise OperationFail("现金不足，操作失败")
+			pass
+		now_info['cash']-=total
+	elif choice == 1:
+		now_info['cash']+=total
+
 	now_info['cash'] = round(now_info['cash'],1)
 	shutil.copyfile(path+chr(48+num)+".json",path+chr(48+num)+"_bak.json")
 	f=open(path+chr(48+num)+".json","w")
@@ -183,7 +185,7 @@ def login(num,types):
 	# 	now_info['storage']=500   #500平米仓库
 	# 	now_info['store_cost']=storage_a
 	# else:
-	# 	now_info['storage']=800     #800平米仓库
+	# 	now_info['storage']=800 #800平米仓库
 	# 	now_info['store_cost']=storage_b
 	# now_info['store_cost']=storage_cost
 	now_info['cash']=now_info['value']=1000
@@ -193,6 +195,7 @@ def login(num,types):
 	f=open(path+chr(48+num)+".json","w")
 	json.dump(now_info,f)
 	f.close()
+
 
 #借贷 total为贷款数额，interest为利率，period为还款时间，num1为放贷公司编号，num2为借贷公司编号
 def getloan(total,interest,period,num1,num2):
@@ -218,6 +221,7 @@ def getloan(total,interest,period,num1,num2):
 	json.dump(info2,f2)
 	f1.close()
 	f2.close()
+
 
 #碳纤维交易 position为市场位置，total为碳纤维交易数量，price为交易单价,quality为质量/成本，num1为出售公司，num2为购买公司
 def buychip(position,total,price,quality,num1,num2):
@@ -352,7 +356,7 @@ def saleinvest(amount,num):
 # ]
 def nextround():
 	gl.max_price=0
-	now_info = []
+	now_info = [-1]
 	log = [{},{},{},{},{},{},{},{},{},{}]   #流水记录
 	#global gl.game_round
 	for i in [1,2,3,4,5,6,7,8,9]:
@@ -362,7 +366,9 @@ def nextround():
 		f.close()
 	# 清算前资金
 	for i in [1,2,3,4,5,6,7,8,9]:
-		log[i]["initmoney"] = now_info[i]["cash"]
+		log[i]["init_money"] = now_info[i]["cash"]
+		log[i]["gain_sell"] = 0
+		log[i]["depreciation"] = 0
 
 	# 无人机公司抛售产品
 	# for i in [1,2,3,4,5,6,7,8,9]:
@@ -376,10 +382,10 @@ def nextround():
 	# 计算竞争力
 	product_list = []
 	for i in [1,2,3,4,5,6,7,8,9]:
-		if now_info[i]['type']==0:
+		if now_info[i]['type'] == 0:
 			continue
 		for j in range(len(now_info[i]['product'])):
-			now_info[i]['product'][j][5] = (50 + now_info[i]['sale']) * now_info[i]['product'][1]/now_info[i]['product'][3]
+			now_info[i]['product'][j][5] = (50 + now_info[i]['sale']) * now_info[i]['product'][j][1]/now_info[i]['product'][j][3]
 			product_list.append(now_info[i]['product'][j])
 
 	product_list.sort(key=takecompetition,reverse=True)
@@ -397,7 +403,7 @@ def nextround():
 			if quality >= cap[j][0] and quality < cap[j+1][0] and j + 1 < len(cap):
 				if amount <= cap[j][1]:
 					now_info[num]['cash'] += amount * price
-					log[num]['gain_sell'] += amount * price
+					log[num]["gain_sell"] += amount * price
 					cap[j][1] -= amount
 				else:
 					now_info[num]['cash'] += cap[j][1] * price
@@ -467,7 +473,7 @@ def nextround():
 	
 	#梯度回收算法 复杂度约为O(N^2)
 	# for i in [1,2,3,4,5,6,7,8,9]:
-	# 	if cap==0 or class_info[i][1]==0:     #市场容量已满
+	# 	if cap==0 or class_info[i][1]==0: #市场容量已满
 	# 		break
 	# 	gl.max_price=class_info[i][1]['curr_price']
 	# 	if class_info[i][-1] < cap:
@@ -495,17 +501,17 @@ def nextround():
 	# 			break
 
 	#投资结算
-	for i in [1,2,3,4,5,6,7,8,9]:
-		#for j in [1,2,3,4]:
-		log[i]["investFDC_total"] = round(now_info[i]['invest'][1]*(1+profit[1][gl.game_round]),1)
-		log[i]["investNY_total"] = round(now_info[i]['invest'][2]*(1+profit[2][gl.game_round]),1)
-		log[i]["investYL_total"] = round(now_info[i]['invest'][3]*(1+profit[3][gl.game_round]),1)
-		log[i]["investWL_total"] = round(now_info[i]['invest'][4]*(1+profit[4][gl.game_round]),1)
-		
-		now_info[i]['cash'] += log[i]["investFDC_total"]+log[i]["investNY_total"] +log[i]["investYL_total"]+log[i]["investWL_total"]
-			#now_info[i]['cash']+=now_info[i]['invest'][j]*profit[j][gl.game_round]
-		for j in [1,2,3,4]:
-			now_info[i]['invest'][j]=0
+	# for i in [1,2,3,4,5,6,7,8,9]:
+	# 	#for j in [1,2,3,4]:
+	# 	log[i]["investFDC_total"] = round(now_info[i]['invest'][1]*(1+profit[1][gl.game_round]),1)
+	# 	log[i]["investNY_total"] = round(now_info[i]['invest'][2]*(1+profit[2][gl.game_round]),1)
+	# 	log[i]["investYL_total"] = round(now_info[i]['invest'][3]*(1+profit[3][gl.game_round]),1)
+	# 	log[i]["investWL_total"] = round(now_info[i]['invest'][4]*(1+profit[4][gl.game_round]),1)
+	#
+	# 	now_info[i]['cash'] += log[i]["investFDC_total"]+log[i]["investNY_total"] +log[i]["investYL_total"]+log[i]["investWL_total"]
+	# 		#now_info[i]['cash']+=now_info[i]['invest'][j]*profit[j][gl.game_round]
+	# 	for j in [1,2,3,4]:
+	# 		now_info[i]['invest'][j]=0
 			
 	# 折旧与仓储结算
 	# for i in [1,2,3,4,5,6,7,8,9]:
@@ -584,10 +590,10 @@ def takecompetition(product):
 def selloff(now_info):
 	if now_info["type"]==0:
 		for i in range(len(now_info["material"])):
-			now_info["cash"] += now_info["material"][i][1]     #成本价回收
+			now_info["cash"] += now_info["material"][i][1] #成本价回收
 	else:
 		for i in range(len(now_info["chip"])):
-			now_info["cash"] += now_info["chip"][i][1]         #成本价回收
+			now_info["cash"] += now_info["chip"][i][1]		 #成本价回收
 	now_info["material"] = []
 	now_info["chip"] = []
 	now_info["product"] = []
