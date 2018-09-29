@@ -202,7 +202,7 @@
 					<table class="table">
 						<tr>
                             <td>清算前资金</td>
-                            <td>{{ Thislog["initmoney"] }}万元</td>
+                            <td>{{ Thislog["init_money"] }}万元</td>
                         </tr>
 						{% if Accountdata["type"] == 1 %}
 						<tr>
@@ -210,11 +210,13 @@
                             <td>{{ Thislog["gain_sell"] }}万元</td>
                         </tr>
 						{% endif %}
-						
+
+						{% if Accountdata["type"] == 0 %}
 						<tr>
                             <td>折旧费</td>
                             <td>-{{ Thislog["depreciation"] }}万元</td>
                         </tr>
+						{% endif %}
 						<!--<tr>-->
                             <!--<td>库存仓储费</td>-->
                             <!--<td>-{{ Thislog["storage"] }}万元</td>-->

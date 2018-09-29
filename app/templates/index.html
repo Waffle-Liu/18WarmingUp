@@ -52,7 +52,9 @@
         {% else %}
             游戏结束
         {% endif %}
-            本轮市场容量：{{ capacity }} 单位
+            本轮南方市场容量：{{ capacity[0][round] }} 单位 <br>
+            本轮北方市场容量：{{ capacity[1][round] }} 单位 <br>
+            本轮西方市场容量：{{ capacity[2][round] }} 单位 <br>
         </a>
 
     </div>
