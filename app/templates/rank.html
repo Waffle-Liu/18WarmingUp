@@ -121,7 +121,7 @@
 {% endblock %}
 {% block content %}
 
-<h1>资产排行榜</h1>
+<h1>总资产排行榜</h1>
 <!--<h3>第{{ round - 1 }}轮无人机市场容量: {{capacity}} 单位</h3>-->
 <!--<h3>第{{ round - 1 }}轮A材料价格: {{material_a}} 万/单位</h3>-->
 <!--<h3>第{{ round - 1 }}轮无人机最高成交价: {{max_price}} 万/单位</h3>-->
@@ -158,9 +158,122 @@
 	</tr>
     {% endif %}
 	{% endfor %}
-	
 
 </table>
+
+<h1>南方地区</h1>
+<table class="bordered">
+    <thead>
+    <tr>
+        <th>市场</th>
+        <th>占该市场分额最高（公司/产品卖价/所占比例）</th>
+        <th>占该市场分额第二（公司/产品卖价/所占比例）</th>
+    </tr>
+    </thead>
+
+	{% for i in [0,1,2,3,4,5,6,7,8] %}
+
+    {% if term[i][2]==0 %}
+	<tr class="bg-warning">
+		{% if i>0 and (term[i][0] == term[i-1][0]) %}
+		<td>{{ i }}</td>
+		{% else %}
+		<td>{{ i+1 }}</td>
+		{% endif %}
+		<td>{{ term[i][1] }}</td>
+		<td>{{ term[i][0] }}</td>
+	</tr>
+    {% else %}
+    <tr class="bg-success">
+		{% if i>0 and (term[i][0] == term[i-1][0]) %}
+		<td>{{ i }}</td>
+		{% else %}
+		<td>{{ i+1 }}</td>
+		{% endif %}
+		<td>{{ term[i][1] }}</td>
+		<td>{{ term[i][0] }}</td>
+	</tr>
+    {% endif %}
+	{% endfor %}
+</table>
+<br>
+
+<h1>北方地区</h1>
+<table class="bordered">
+    <thead>
+    <tr>
+        <th>排名</th>
+        <th>企业</th>
+        <th>现金资产(万元）</th>
+    </tr>
+    </thead>
+
+	{% for i in [0,1,2,3,4,5,6,7,8] %}
+
+    {% if term[i][2]==0 %}
+	<tr class="bg-warning">
+		{% if i>0 and (term[i][0] == term[i-1][0]) %}
+		<td>{{ i }}</td>
+		{% else %}
+		<td>{{ i+1 }}</td>
+		{% endif %}
+		<td>{{ term[i][1] }}</td>
+		<td>{{ term[i][0] }}</td>
+	</tr>
+    {% else %}
+    <tr class="bg-success">
+		{% if i>0 and (term[i][0] == term[i-1][0]) %}
+		<td>{{ i }}</td>
+		{% else %}
+		<td>{{ i+1 }}</td>
+		{% endif %}
+		<td>{{ term[i][1] }}</td>
+		<td>{{ term[i][0] }}</td>
+	</tr>
+    {% endif %}
+	{% endfor %}
+
+</table>
+<br>
+
+<h1>西方地区</h1>
+<table class="bordered">
+    <thead>
+    <tr>
+        <th>排名</th>
+        <th>企业</th>
+        <th>现金资产(万元）</th>
+    </tr>
+    </thead>
+
+	{% for i in [0,1,2,3,4,5,6,7,8] %}
+
+    {% if term[i][2]==0 %}
+	<tr class="bg-warning">
+		{% if i>0 and (term[i][0] == term[i-1][0]) %}
+		<td>{{ i }}</td>
+		{% else %}
+		<td>{{ i+1 }}</td>
+		{% endif %}
+		<td>{{ term[i][1] }}</td>
+		<td>{{ term[i][0] }}</td>
+	</tr>
+    {% else %}
+    <tr class="bg-success">
+		{% if i>0 and (term[i][0] == term[i-1][0]) %}
+		<td>{{ i }}</td>
+		{% else %}
+		<td>{{ i+1 }}</td>
+		{% endif %}
+		<td>{{ term[i][1] }}</td>
+		<td>{{ term[i][0] }}</td>
+	</tr>
+    {% endif %}
+	{% endfor %}
+
+</table>
+<br>
+
 <div class="noticeBox">
     <div>
         <div class="bg-warning type"></div> 生产商公司
@@ -169,6 +282,11 @@
         <div class="bg-success type"></div> 销售商公司
     </div>
 </div>
+
+<table>
+
+</table>
+
                         <!--最好还能显示排名变化情况-->
-	<div class="background"><img src="{{url_for("static",filename="back.png")}}"</div>
+<div class="background"><img src="{{url_for("static",filename="back.png")}}"</div>
 {% endblock %}

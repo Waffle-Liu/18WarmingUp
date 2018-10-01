@@ -25,16 +25,23 @@ class caigou(Form):   #采购页面表单，输入采购量
 
 
 class shengchan(Form):   #生产页面表单，输入生产量
-	position = SelectField("请选择投入市场", choices=[("0", "南方市场"), ("1", "北方市场"),("2","西方市场")])
-	produceamount = StringField("请输入投入数量/万",validators=[Regexp(r'\d*')],default=0)
-	produceprice = StringField("请输入每件产品的成本（质量）/元",validators=[Regexp(r'\d*')],default=0)
+	position = SelectField("请选择市场", choices=[("0", "南方地区"), ("1", "北方地区"),("2","西方地区")])
+	produceamount = StringField("请输入产品数量/万",validators=[Regexp(r'\d*')],default=0)
+	produceprice = StringField("请输入每件产品的成本/元",validators=[Regexp(r'\d*')],default=0)
+	producequality = StringField("请输入每件产品的质量/元", validators=[Regexp(r'\d*')], default=0)
 	sellprice = StringField("请输入每件产品的卖价/元", validators=[Regexp(r'\d*')], default=0)
 	submit = SubmitField("确定生产")
 
 
 class xiaoshou(Form):   #销售投入表单，输入销售投入
-	investamount = StringField("请输入销售投入/万元",validators=[Regexp(r'\d*')],default=0)
+	investamount_south = StringField("请输入南方广告投入/万元",validators=[Regexp(r'\d*')],default=0)
+	investamount_north = StringField("请输入北方广告投入/万元", validators=[Regexp(r'\d*')], default=0)
+	investamount_west = StringField("请输入西方广告投入/万元", validators=[Regexp(r'\d*')], default=0)
 	submit = SubmitField("确定")
+
+class yanfa(Form):   #研发投入表单，输入研发投入
+	research_amount = StringField("请输入研发投入/万元",validators=[Regexp(r'\d*')],default=0)
+	submit = SubmitField("确定投入")
 
 #
 #

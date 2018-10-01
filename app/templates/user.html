@@ -25,7 +25,15 @@
 								<td><span class="totalmoney">{{ Accountdata["cash"] }}</span>万元</td>
 							</tr>
 					 		{% if Accountdata["type"]==0 %}
+					 			<tr>
+									<td>生产系数k</td>
+									<td><span class="totalmoney">{{ Accountdata["produce_k"] }}</span></td>
+								</tr>
 								{% for material in Accountdata["material"] %}
+					 				<tr>
+										<td>产品序号</td>
+										<td><span class="resource">{{ Accountdata["material"].index(material)+1 }}</span></td>
+									</tr>
 									<tr>
 										<td>所在市场</td>
 										{% if material[0] == 0 %}
@@ -39,8 +47,12 @@
 										{% endif %}
 									</tr>
 									<tr>
-										<td>白酒成本/质量</td>
+										<td>白酒成本</td>
 										<td><span class="resource">{{ material[1] }}</span>元</td>
+									</tr>
+					 				<tr>
+										<td>白酒质量</td>
+										<td><span class="resource">{{ material[3] }}</span>元</td>
 									</tr>
 									<tr>
 										<td>数量</td>
@@ -64,8 +76,8 @@
 										{% endif %}
 									</tr>
 									<tr>
-										<td>白酒成本/质量</td>
-										<td><span class="resource">{{ chip[1] }}</span>元</td>
+										<td>白酒质量</td>
+										<td><span class="resource">{{ chip[3] }}</span>元</td>
 									</tr>
 									<tr>
 										<td>数量</td>
@@ -76,22 +88,22 @@
 							{% endif %}
 						</table>
 			</div>        		
-			<div class="info-heading">
-						<h4 class="info-title">贷款情况</h4>
-			</div>
-			<div class="debt info-body">
-				<ul>
-					{% for loan in Accountdata["loan"] %}
-							{% if loan[0] %}   <!--金额不为0-->
-								<li>
-								{% if loan[0]>0 %}借出：{% else %}借得：{% endif %}
-								{{ loan[3] }}号公司
-								{{ loan[0]|abs }}万元，第{{ loan[2] }}轮归还，利息为{{ loan[1]*100 }}%</li>
-							{% endif %}
-						
-					{% endfor %}						
-				</ul>
-			</div>
+			<!--<div class="info-heading">-->
+						<!--<h4 class="info-title">贷款情况</h4>-->
+			<!--</div>-->
+			<!--<div class="debt info-body">-->
+				<!--<ul>-->
+					<!--{% for loan in Accountdata["loan"] %}-->
+							<!--{% if loan[0] %}   &lt;!&ndash;金额不为0&ndash;&gt;-->
+								<!--<li>-->
+								<!--{% if loan[0]>0 %}借出：{% else %}借得：{% endif %}-->
+								<!--{{ loan[3] }}号公司-->
+								<!--{{ loan[0]|abs }}万元，第{{ loan[2] }}轮归还，利息为{{ loan[1]*100 }}%</li>-->
+							<!--{% endif %}-->
+						<!---->
+					<!--{% endfor %}						-->
+				<!--</ul>-->
+			<!--</div>-->
 
 
 			<!--<div class="info-heading">
@@ -130,69 +142,103 @@
 			{% else %}
 			<div class="info-heading" id="op-head"><h4 class="info-title">游戏结束</h4></div>
 			{% endif %}
-			<br></br>
+			<br>
 			<button type="button" class="btn btn-primary bill pull-right" data-container="body" data-toggle="popover" data-placement="right">查看上轮清算环节账单</button>	
 			<ul role="navigation" class="nav nav-tabs">
-				{% if Accountdata['type']==1 %}
-				<li role="presentation" class="active" id="tab01"><a href="#">销售投入</a></li>
-				<li role="presentation"  id="tab02"><a href="#">投放市场</a></li>
-				{% endif %}
 				{% if Accountdata['type']==0 %}
-				<li role="presentation" id="tab02"><a href="#">生产</a></li>
+				<li role="presentation" class="active" id="tab01"><a href="#">研发投入</a></li>
+				<li role="presentation" id="tab02"><a href="#">原料生产</a></li>
+				{% endif %}
+				{% if Accountdata['type']==1 %}
+				<li role="presentation" class="active" id="tab01"><a href="#">广告投入</a></li>
+				<li role="presentation" id="tab02"><a href="#">投放市场</a></li>
 				{% endif %}
 			</ul>
+			{% if Accountdata["type"]==0 %}
 			<div class="caigou"><br>
-				<!--{% if Accountdata["type"]==1 %}
-				<p>本轮原材料单价为<span class="price">
-					{{material_b[game_round]}}
-				</span>万元</p>
-				{% endif %}-->
-				{% if Accountdata["type"]==1 %}
-					<form method="POST" name="op-form">
-						{{ Xiaoshouform.hidden_tag()}}
-						<div class="form-group">
-							{{ Xiaoshouform.investamount.label }}
-							{{ Xiaoshouform.investamount(class="form-control buyamount")}}
-							<!--<p class="help-block">总价：<span class="totalpay">1000</span>万元</p>     --> <!--可以定义函数--> <!--多买会降价 还没做-->
-							<!-- <p class="help-block">现金余额：<span class="moneyleft">1000</span>万元</p> --> <!--待修改-->
-							<p class="help-block">温馨提醒：请预留足够现金用于支付原料储存费等。</p>
-						</div>
-						<div>
-							{{ Xiaoshouform.submit(class="btn btn-primary btn-submit")}}
-						</div>
-					</form>
-				{% endif %}
-				</div>
-			<div class="shengchan"><br>
-                <form method="POST" name="op-form">
+				<form method="POST" name="op-form">
+					{{ Yanfaform.hidden_tag()}}
 					<div class="form-group">
-						{{ Shengchanform.hidden_tag()}}
+						{{ Yanfaform.research_amount.label }}
+						{{ Yanfaform.research_amount(class="form-control buyamount")}}
+						<!--<p class="help-block">总价：<span class="totalpay">1000</span>万元</p>     --> <!--可以定义函数--> <!--多买会降价 还没做-->
+						<!-- <p class="help-block">现金余额：<span class="moneyleft">1000</span>万元</p> --> <!--待修改-->
+					</div>
+					<p class="help-block">温馨提醒：请预留足够现金用于支付原料储存费等。</p>
+					<div class="confirmbtn">
+						{{ Yanfaform.submit(class="btn btn-primary btn-submit")}}
+					</div>
+				</form>
+			</div>
+			<div class="shengchan"><br>
+				<form method="POST" name="op-form">
+					{{ Shengchanform.hidden_tag()}}
+					<div class="form-group">
 						{{ Shengchanform.position.label }}
 						{{ Shengchanform.position(class="form-control")}}
 
-						{% if Accountdata['type']==0 %}
-						{{ Shengchanform.hidden_tag()}}
 						{{ Shengchanform.produceamount.label }}
 						{{ Shengchanform.produceamount(class="form-control")}}
-						{% endif %}
 
-						{{ Shengchanform.hidden_tag()}}
 						{{ Shengchanform.produceprice.label }}
 						{{ Shengchanform.produceprice(class="form-control")}}
-
-						{% if Accountdata['type']==1 %}
-						{{ Shengchanform.hidden_tag()}}
-						{{ Shengchanform.sellprice.label }}
-						{{ Shengchanform.sellprice(class="form-control")}}
-						{% endif %}
-
-						<p class="help-block">温馨提醒：请预留足够现金用于支付原料储存费等。</p>
+						<!--<p class="help-block">总价：<span class="totalpay">1000</span>万元</p>     --> <!--可以定义函数--> <!--多买会降价 还没做-->
+						<!-- <p class="help-block">现金余额：<span class="moneyleft">1000</span>万元</p> --> <!--待修改-->
+						<!--<p class="help-block">温馨提醒：请预留足够现金用于支付原料储存费等。</p>-->
 					</div>
 					<div class="confirmbtn">
-							{{ Shengchanform.submit(class="btn btn-primary btn-submit")}}
-						</div>
+						{{ Shengchanform.submit(class="btn btn-primary btn-submit")}}
+					</div>
 				</form>
 			</div>
+			{% endif %}
+			{% if Accountdata["type"]==1 %}
+			<div class="caigou" ><br>
+				<form method="POST" name="op-form">
+					{{ Xiaoshouform.hidden_tag()}}
+					<div class="form-group">
+						{{ Xiaoshouform.investamount_south.label }}
+						{{ Xiaoshouform.investamount_south(class="form-control buyamount")}}
+
+						{{ Xiaoshouform.investamount_north.label }}
+						{{ Xiaoshouform.investamount_north(class="form-control buyamount")}}
+
+						{{ Xiaoshouform.investamount_west.label }}
+						{{ Xiaoshouform.investamount_west(class="form-control buyamount")}}
+						<!--<p class="help-block">总价：<span class="totalpay">1000</span>万元</p>     --> <!--可以定义函数--> <!--多买会降价 还没做-->
+						<!-- <p class="help-block">现金余额：<span class="moneyleft">1000</span>万元</p> --> <!--待修改-->
+						<!--<p class="help-block">温馨提醒：请预留足够现金用于支付原料储存费等。</p>-->
+					</div>
+					<div class="confirmbtn">
+						{{ Xiaoshouform.submit(class="btn btn-primary btn-submit")}}
+					</div>
+				</form>
+			</div>
+			<div class="shengchan"><br>
+				<form method="POST" name="op-form">
+					{{ Shengchanform.hidden_tag()}}
+					<div class="form-group">
+						{{ Shengchanform.position.label }}
+						{{ Shengchanform.position(class="form-control")}}
+
+						{{ Shengchanform.producequality.label }}
+						{{ Shengchanform.producequality(class="form-control")}}
+
+						{{ Shengchanform.sellprice.label }}
+						{{ Shengchanform.sellprice(class="form-control")}}
+						<!--<p class="help-block">总价：<span class="totalpay">1000</span>万元</p>     --> <!--可以定义函数--> <!--多买会降价 还没做-->
+						<!-- <p class="help-block">现金余额：<span class="moneyleft">1000</span>万元</p> --> <!--待修改-->
+						<!--<p class="help-block">温馨提醒：请预留足够现金用于支付原料储存费等。</p>-->
+					</div>
+					<div class="confirmbtn">
+						{{ Shengchanform.submit(class="btn btn-primary btn-submit")}}
+					</div>
+				</form>
+			</div>
+			{% endif %}
+
+
+
 		</div>
 		<div class="log pull-right">
                 <div class="info-heading">
@@ -221,10 +267,10 @@
                             <!--<td>库存仓储费</td>-->
                             <!--<td>-{{ Thislog["storage"] }}万元</td>-->
                         <!--</tr>-->
-						<tr>
-                            <td>贷款</td>
-                            <td>{{ Thislog["loan"] }}万元</td>
-                        </tr>
+						<!--<tr>-->
+                            <!--<td>贷款</td>-->
+                            <!--<td>{{ Thislog["loan"] }}万元</td>-->
+                        <!--</tr>-->
 					</table>
 				</div>
 			

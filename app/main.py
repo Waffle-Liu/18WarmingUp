@@ -2,8 +2,8 @@
 # -*- coding: utf-8 -*-
 from flask import  Flask,render_template,session,url_for,redirect,flash,json,request
 from flask_bootstrap import Bootstrap
-from forms import LoginForm,touzi,caigou,xiaoshou,shengchan,gongnengkaForm,debtform,trade,fineform,nextform   #导入表单
-from gl import material_a,material_b,capacity
+from forms import LoginForm,touzi,caigou,xiaoshou,shengchan,yanfa,gongnengkaForm,debtform,trade,fineform,nextform   #导入表单
+from gl import material_a,material_b,capacity,coef_k
 import dealwith
 from dealwith import path,OperationFail
 import os
@@ -49,32 +49,46 @@ def index():
 	# Caigouform = caigou()
 	Xiaoshouform = xiaoshou()
 	Shengchanform = shengchan()
+	Yanfaform = yanfa()
 	num = session.get("number")
 	
 	if request.method == 'POST' :		
 		form_name = request.form["submit"]
 
 		if form_name == '确定' and Xiaoshouform.validate_on_submit():  #提交第二个表单：销售投入
-			amount = int(Xiaoshouform.investamount.data)
+			amount_south = float(Xiaoshouform.investamount_south.data)
+			amount_north = float(Xiaoshouform.investamount_north.data)
+			amount_west = float(Xiaoshouform.investamount_west.data)
 			try:
-				dealwith.saleinvest(amount,num)
+				dealwith.saleinvest(amount_south,amount_north,amount_west,num)
+			except OperationFail as e:
+				flash("%r" % e)						#异常
+			finally:
+				return redirect(url_for("index"))
+		elif form_name == '确定投入' and Yanfaform.validate_on_submit():
+			amount_research = float(Yanfaform.research_amount.data)
+			try:
+				dealwith.researchinvest(amount_research,num)
 			except OperationFail as e:
 				flash("%r" % e)						#异常
 			finally:
 				return redirect(url_for("index"))
 		else:               #提交第三个表单：生产
-			price = float(Shengchanform.produceprice.data)
 			position = int(Shengchanform.position.data)
-			if Shengchanform.produceamount.data:
+			if Shengchanform.produceamount.data and Shengchanform.produceprice.data:
 				amount = float(Shengchanform.produceamount.data)
+				firstcost = float(Shengchanform.produceprice.data)
 			else:
 				amount = 0.0
-			if Shengchanform.sellprice.data:
+				firstcost = 0.0
+			if Shengchanform.sellprice.data and Shengchanform.producequality.data:
 				sellprice = float(Shengchanform.sellprice.data)
+				quality = float(Shengchanform.producequality.data)
 			else:
 				sellprice = 0.0
+				quality = 0.0
 			try:
-				dealwith.produce(num,amount,price,sellprice,position)
+				dealwith.produce(num,amount,firstcost,sellprice,position,quality)
 			except OperationFail as e:
 				flash("%r" % e)						#异常
 			finally:
@@ -97,7 +111,7 @@ def index():
 	# print(dealwith.game_round)
 	print("game_round:")
 	print(gl.game_round)
-	return render_template("user.html",Accountdata=now_info,Shengchanform=Shengchanform,Xiaoshouform=Xiaoshouform,game_round = gl.game_round, material_a = material_a ,material_b = material_b,Thislog = log[session["number"]],chip_space=gl.chip_space,product_space=gl.product_space)
+	return render_template("user.html",Accountdata=now_info,Shengchanform=Shengchanform,Xiaoshouform=Xiaoshouform,Yanfaform=Yanfaform,game_round = gl.game_round, material_a = material_a ,material_b = material_b,Thislog = log[session["number"]],chip_space=gl.chip_space,product_space=gl.product_space)
 
 
 @app.route("/seller/<int:num>",methods=["GET","POST"])
@@ -189,10 +203,10 @@ def intrade():
 		buyer = int(form.buyer.data)
 		amount = float(form.amount.data)
 		position = int(form.position.data)
-		price = float(form.price.data)
 		quality = float(form.quality.data)
+		sellprice = float(form.price.data)
 		try:
-			dealwith.buychip(position,amount,price,quality,seller,buyer)
+			dealwith.buychip(position,amount,sellprice,quality,seller,buyer)
 		except OperationFail as e:
 			flash("%r" % e)						#异常
 		finally:
