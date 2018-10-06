@@ -565,7 +565,7 @@ def takeproportion(result):
 def selloff(now_info):
 	if now_info["type"]==0:
 		for i in range(len(now_info["material"])):
-			now_info["cash"] += now_info["material"][i][1] * now_info["material"][2] #成本价回收
+			now_info["cash"] += now_info["material"][i][1] * now_info["material"][i][2] #成本价回收
 	# else:
 	# 	for i in range(len(now_info["chip"])):
 	# 		now_info["cash"] += now_info["chip"][i][1]		 #成本价回收
