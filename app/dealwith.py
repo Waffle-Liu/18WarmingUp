@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 import json
 import sys
-from gl import capacity,coef_k,store_fee,profit,material_a,material_b,end_round,chip_price,reduced_fee,add_store,cost_store
+from gl import capacity,coef_k,store_fee,material_a,material_b,end_round,reduced_fee,add_store,cost_store
 #import gl
 import os
 import shutil
@@ -96,12 +96,14 @@ def produce(num,total,price,sellprice,position,quality):
 # product：  下游公司生产（市场，成本，数量, 卖价, 公司id，竞争力，质量）
 # 无法生产
 	flag1 = 0
+	firstcost = 0
 	if now_info['type'] == 0:
 		if total * price > now_info["cash"]:   #钱不够
 			raise OperationFail("现金不足，操作失败")
 	elif now_info['type'] == 1:		#材料不够
 		for i in range(len(now_info["chip"])):		#找到这款芯片
 			if position == now_info["chip"][i][0] and quality == now_info["chip"][i][3]:
+				firstcost = now_info["chip"][i][1]
 				total = now_info["chip"][i][2]
 				now_info["chip"][i][2] = 0.0
 				flag1 = 1
@@ -117,7 +119,7 @@ def produce(num,total,price,sellprice,position,quality):
 				flag2 = 1
 				break
 		if flag2 == 0:
-			product = [position, price, total, sellprice, num, 0, quality]
+			product = [position, firstcost, total, sellprice, num, 0, quality]
 			now_info['product'].append(product)
 
 	elif now_info['type'] == 0:
@@ -126,6 +128,7 @@ def produce(num,total,price,sellprice,position,quality):
 		for i in range(len(now_info["material"])):
 			if position == now_info["material"][i][0] and price == now_info["material"][i][1] and quality == now_info["material"][i][3]:
 				now_info["material"][i][2] += total
+				now_info["material"][i][1] = 0.0
 				flag2 = 1
 				break
 		if flag2 == 0:
@@ -374,6 +377,10 @@ def nextround():
 		temp_txt=f.read()
 		now_info.append(json.loads(temp_txt))
 		f.close()
+
+	f = open(path + "capacity_rank.json", "r")
+	capacity_result = json.loads(f.read())
+	f.close()
 	# 清算前资金
 	for i in [1,2,3,4,5,6,7,8,9]:
 		log[i]["init_money"] = now_info[i]["cash"]
@@ -397,75 +404,91 @@ def nextround():
 			continue
 		for j in range(len(now_info[i]['product'])):
 			mar = now_info[i]['product'][j][0]
-			now_info[i]['product'][j][5] = (50 + now_info[i]['sale'][mar]) * now_info[i]['product'][j][1]/now_info[i]['product'][j][3]
-			product_list.append(now_info[i]['product'][j])
+			now_info[i]['product'][j][5] = (50 + now_info[i]['sale'][mar]) * now_info[i]['product'][j][6]/now_info[i]['product'][j][3]
+			product_list.append(now_info[i]['product'][j])		# 放入所有用户的产品
 
-	product_list.sort(key=takecompetition,reverse=True)
+	product_list.sort(key=takecompetition,reverse=True)		# 产品按竞争力排序
 
-	# 市场收购+系统回收
 
-	for k in [0,1,2]:
+	# 市场收购+系统回收	复杂度 O(N)
+	for k in [0,1,2]:		# 遍历三个市场
 		cap = capacity[k][gl.game_round]
+
+		for t in range(len(cap)):
+			capacity_result['capacity_result'][k][gl.game_round][t].append([])
+
 		for j in range(len(cap)-1):
 			left = cap[j][0]
 			right = cap[j+1][0]
 			for i in range(len(product_list)):
 				market = product_list[i][0]
-				quality = product_list[i][6]
+				firstcost = product_list[i][1]
 				amount = product_list[i][2]
+
 				price = product_list[i][3]
 				num = product_list[i][4]
-				rl = left/(left+right)
-				rr = right/(left+right)
-				if quality >= left and quality < right and k == market:
-					if rl * amount < cap[j][0]:
-						now_info[num]['cash'] += rl * amount * price
-						log[num]["gain_sell"] += rl * amount * price
-						cap[j][1] -= rl * amount
+				quality = product_list[i][6]
+
+				if price > left and price <= right and k == market:
+					if amount < cap[j][1]:
+						now_info[num]['cash'] += amount * price
+						log[num]["gain_sell"] += amount * price
+						if cap[j][1] != 0 and amount != 0:
+							capacity_result['capacity_result'][k][gl.game_round][j][2].append([num, price, round(amount / capacity[k][gl.game_round][j][1], 2)])
+						cap[j][1] -= amount
+						amount = 0
+						product_list[i][2] = 0
 					else:
 						now_info[num]['cash'] += cap[j][1] * price
-						now_info[num]['cash'] += (amount - cap[j][1]) * quality
 						log[num]['gain_sell'] += cap[j][1] * price
-						# log[num]['retrieve'] += (amount - cap[j][1]) * quality
+						if cap[j][1] != 0 and amount != 0:
+							capacity_result['capacity_result'][k][gl.game_round][j][2].append([num, price, round(cap[j][1] / capacity[k][gl.game_round][j][1], 2)])
+						amount -= cap[j][1]
 						cap[j][1] = 0
-					if rr * amount < cap[j+1][0]:
-						now_info[num]['cash'] += rr * amount * price
-						log[num]["gain_sell"] += rr * amount * price
-						cap[j+1][1] -= rr * amount
+					if amount < cap[j+1][1]:
+						now_info[num]['cash'] += amount * price
+						log[num]["gain_sell"] += amount * price
+						if cap[j+1][1] != 0 and amount != 0:
+							capacity_result['capacity_result'][k][gl.game_round][j+1][2].append([num, price, round(amount / capacity[k][gl.game_round][j+1][1], 2)])
+						cap[j+1][1] -= amount
+						amount = 0
+						product_list[i][2] = 0
 					else:
 						now_info[num]['cash'] += cap[j+1][1] * price
-						now_info[num]['cash'] += (amount - cap[j+1][1]) * quality
 						log[num]['gain_sell'] += cap[j+1][1] * price
-						# log[num]['retrieve'] += (amount - cap[j+1][1]) * quality
+						if cap[j+1][1] != 0 and amount != 0:
+							capacity_result['capacity_result'][k][gl.game_round][j+1][2].append([num, price, round(cap[j+1][1] / capacity[k][gl.game_round][j+1][1], 2)])
+						amount -= cap[j+1][1]
 						cap[j+1][1] = 0
-					log[num]["gain_sell"] = round(log[num]["gain_sell"], 1)
+					if amount > 0:		# 剩余被系统原价回收
+						now_info[num]["cash"] += amount * firstcost
+						product_list[i][2] = 0
+				elif price == 10 and k == market:		# 10作为单独的情况
+					if amount < cap[j][1]:
+						now_info[num]['cash'] += amount * price
+						log[num]["gain_sell"] += amount * price
+						if cap[j][1] != 0 and amount != 0:
+							capacity_result['capacity_result'][k][gl.game_round][j][2].append([num, price, round(amount / capacity[k][gl.game_round][j][1], 2)])
+						cap[j][1] -= amount
+						amount = 0
+						product_list[i][2] = 0
+					else:
+						now_info[num]['cash'] += cap[j][1] * price
+						log[num]['gain_sell'] += cap[j][1] * price
+						if cap[j][1] != 0 and amount != 0:
+							capacity_result['capacity_result'][k][gl.game_round][j][2].append([num, price, round(cap[j][1] / capacity[k][gl.game_round][j][1], 2)])
+						amount -= cap[j][1]
+						cap[j][1] = 0
+					if amount > 0:		# 剩余被系统原价回收
+						now_info[num]["cash"] += amount * firstcost
+						product_list[i][2] = 0
+				log[num]["gain_sell"] = round(log[num]["gain_sell"], 1)
 
-			# if quality >= cap[j][0] and quality < cap[j+1][0] and j + 1 < len(cap):
-			# 	if amount <= cap[j][1]:
-			# 		now_info[num]['cash'] += amount * price
-			# 		log[num]["gain_sell"] += amount * price
-			# 		cap[j][1] -= amount
-			# 	else:
-			# 		now_info[num]['cash'] += cap[j][1] * price
-			# 		now_info[num]['cash'] += (amount - cap[j][1]) * quality
-			# 		log[num]['gain_sell'] += cap[j][1] * price + (amount - cap[j][1]) * quality
-			# 		cap[j][1] = 0
-			# 	break
-			# elif quality >= cap[-1][0]:
-			# 	if amount <= cap[-1][1]:
-			# 		now_info[num]['cash'] += amount * price
-			# 		log[num]['gain_sell'] += amount * price
-			# 		cap[j][1] -= amount
-			# 	else:
-			# 		now_info[num]['cash'] += cap[j][1] * price
-			# 		now_info[num]['cash'] += (amount - cap[j][1]) * quality
-			# 		log[num]['gain_sell'] += cap[j][1] * price + (amount - cap[j][1]) * quality
-			# 		cap[j][1] = 0
-			# 	break
-			# elif quality < cap[0][0]:
-			# 	now_info[num]['cash'] += amount * quality
-			# 	log[num]['gain_sell'] += amount * quality
-			# 	break
+		for t in range(len(cap)-1):
+			result = capacity_result['capacity_result'][k][gl.game_round][t][2]
+			result.sort(key=takeproportion, reverse=True)
+			capacity_result['capacity_result'][k][gl.game_round][t][2] = result
+
 
 # 生产生产剩余收取仓库费
 	for i in [1,2,3,4,5,6,7,8,9]:
@@ -479,109 +502,14 @@ def nextround():
 		# 		now_info[i]['cash'] -= store_fee * now_info[i]['chip'][j][2]
 		# 		log[i]["depreciation"] += store_fee * now_info[i]['chip'][j][2]
 
-	#记录生产量
-	# temp_cap=0
-	# for i in [1,2,3,4,5,6,7,8,9]:
-	# 	if now_info[i]['type']==0:
-	# 		continue
-	# 	temp_cap+=now_info[i]['product']
-	#系统梯度收购
-	# class_info=[[0 for col in range(11)] for row in range(11)]
-	# cap=south_capacity[gl.game_round]
-	# info=now_info[:]
-	# info=sorted(info,key=lambda x:x['curr_price'])
-	# row=col=1
-	# sum=0
-
-	# 归类算法，按照相同的定价分类
-	# for i in [1,2,3,4,5,6,7,8,9]:
-	# 	if info[i]['type']==0:
-	# 		continue
-	# 	temp=info[i]
-	# 	if col!=1 and class_info[row][col-1]['curr_price']!=temp['curr_price']:
-	# 		class_info[row][-1]=sum
-	# 		row+=1
-	# 		col=1
-	# 		temp=info[i]
-	# 		sum=0
-	# 	sum+=info[i]['product']
-	# 	if i==len(now_info)-1:
-	# 		class_info[row][-1]=sum		#将该类企业的产品总数量存于数组末尾
-	# 	class_info[row][col]=temp
-	# 	col+=1
-	
-	#梯度回收算法 复杂度约为O(N^2)
-	# for i in [1,2,3,4,5,6,7,8,9]:
-	# 	if cap==0 or class_info[i][1]==0: #市场容量已满
-	# 		break
-	# 	gl.max_price=class_info[i][1]['curr_price']
-	# 	if class_info[i][-1] < cap:
-	# 		cap-=class_info[i][-1]
-	# 		for j in [1,2,3,4,5,6,7,8,9]:
-	# 			if class_info[i][j]==0:
-	# 				break
-	# 			class_info[i][j]['cash']+=class_info[i][j]['product']*class_info[i][j]['curr_price']
-	# 			log[class_info[i][j]['id']]['gain_sell']=class_info[i][j]['product']*class_info[i][j]['curr_price']	#记录收益
-	# 			class_info[i][j]['product']=0
-	# 	else:
-	# 		for j in [1,2,3,4,5,6,7,8,9]:
-	# 			if class_info[i][j]==0:
-	# 				break
-	# 			sellAmount=round(class_info[i][j]['product']/class_info[i][-1]*cap)
-	# 			class_info[i][j]['product']-=sellAmount
-	# 			class_info[i][j]['cash']+=sellAmount*class_info[i][j]['curr_price']
-	# 		cap=0
-	#
-	# for i in [1,2,3,4,5,6,7,8,9]:
-	# 	for j in [1,2,3,4,5,6,7,8,9]:
-	# 		if isinstance(class_info[i][j],dict):
-	# 			now_info[class_info[i][j]['id']]['product']=class_info[i][j]['product']  #id在此处发挥作用
-	# 		else:
-	# 			break
-
-	#投资结算
-	# for i in [1,2,3,4,5,6,7,8,9]:
-	# 	#for j in [1,2,3,4]:
-	# 	log[i]["investFDC_total"] = round(now_info[i]['invest'][1]*(1+profit[1][gl.game_round]),1)
-	# 	log[i]["investNY_total"] = round(now_info[i]['invest'][2]*(1+profit[2][gl.game_round]),1)
-	# 	log[i]["investYL_total"] = round(now_info[i]['invest'][3]*(1+profit[3][gl.game_round]),1)
-	# 	log[i]["investWL_total"] = round(now_info[i]['invest'][4]*(1+profit[4][gl.game_round]),1)
-	#
-	# 	now_info[i]['cash'] += log[i]["investFDC_total"]+log[i]["investNY_total"] +log[i]["investYL_total"]+log[i]["investWL_total"]
-	# 		#now_info[i]['cash']+=now_info[i]['invest'][j]*profit[j][gl.game_round]
-	# 	for j in [1,2,3,4]:
-	# 		now_info[i]['invest'][j]=0
-			
-	# 折旧与仓储结算
-	# for i in [1,2,3,4,5,6,7,8,9]:
-	# 	if now_info[i]['type']==0:
-	# 		log[i]["depreciation"] = depreciation_a*now_info[i]['product']+depreciation_material_a*now_info[i]['material']
-	# 		# log[i]["storage"] = round((storage_a*now_info[i]['material'] + storage_chip*now_info[i]['product']),1)
-	# 		log[i]["storage"]=now_info[i]['store_cost']
-	# 		now_info[i]['cash']-= log[i]["depreciation"]  #折旧、仓储
-	# 		now_info[i]['cash']-= log[i]["storage"]
-	#
-	# 		if now_info[i]['fee'] == reduced_fee:
-	# 			now_info[i]['fee'] = processfee_a	#恢复为正常加工费
-	# 	else:
-	# 		log[i]["depreciation"] = depreciation_a*now_info[i]['chip']+depreciation_b*now_info[i]['product']+depreciation_material_b*now_info[i]['material']
-	# 		# log[i]["storage"] = round((storage_b*now_info[i]['material'] + storage_chip*now_info[i]['chip']),1)
-	# 		log[i]["storage"]=now_info[i]['store_cost']
-	# 		now_info[i]['cash']-= log[i]["depreciation"]
-	# 		now_info[i]['cash']-= log[i]["storage"]
-	# 		if now_info[i]['fee'] == reduced_fee:
-	# 			now_info[i]['fee'] = processfee_b
-	# 	if now_info[i]['storage']==1000 or now_info[i]['storage']==700: #使用了仓储卡的玩家
-	# 		now_info[i]['store_cost']+=cost_store
-	
 	# 还款结算
-	for i in [1,2,3,4,5,6,7,8,9]:
-		log[i]["loan"] = 0
-		for j in range(len(now_info[i]["loan"])):
-			if now_info[i]["loan"][j][0] != 0 and now_info[i]["loan"][j][2]==gl.game_round:
-				log[i]["loan"] += round(now_info[i]["loan"][j][0] * (1+now_info[i]["loan"][j][1]),1)
-				now_info[i]["loan"][j][0] = 0
-		now_info[i]["cash"] += log[i]["loan"]
+	# for i in [1,2,3,4,5,6,7,8,9]:
+	# 	log[i]["loan"] = 0
+	# 	for j in range(len(now_info[i]["loan"])):
+	# 		if now_info[i]["loan"][j][0] != 0 and now_info[i]["loan"][j][2]==gl.game_round:
+	# 			log[i]["loan"] += round(now_info[i]["loan"][j][0] * (1+now_info[i]["loan"][j][1]),1)
+	# 			now_info[i]["loan"][j][0] = 0
+	# 	now_info[i]["cash"] += log[i]["loan"]
 		
 	# 破产
 	for i in [1,2,3,4,5,6,7,8,9]:
@@ -592,7 +520,6 @@ def nextround():
 				eliminate(now_info,i)  
 				#债务取消
 				pass
-			
 	
 	if gl.game_round == end_round:  #游戏结束，变卖所有资产
 		for i in [1,2,3,4,5,6,7,8,9]:
@@ -612,11 +539,16 @@ def nextround():
 				
 	for i in [1,2,3,4,5,6,7,8,9]:
 		now_info[i]["cash"] = round(now_info[i]["cash"],1)
-		now_info[i]["produce_k"] = coef_k[gl.game_round]
+		now_info[i]["produce_k"] *= coef_k[gl.game_round]
+		now_info[i]["produce_k"] = round(now_info[i]["produce_k"], 2)
 		shutil.copyfile(path+chr(48+i)+".json",path+chr(48+i)+"_bak.json")
 		f=open(path+chr(48+i)+".json","w")
 		json.dump(now_info[i],f)
 		f.close()
+
+	f = open(path + "capacity_rank.json", "w")  # 将日志写到文件里保存
+	json.dump(capacity_result, f)
+	f.close()
 		
 	f=open(path+"log.json","w")  #将日志写到文件里保存
 	json.dump(log,f)
@@ -625,6 +557,9 @@ def nextround():
 
 def takecompetition(product):
 	return product[5]
+
+def takeproportion(result):
+	return result[2]
 
 #资产变卖
 def selloff(now_info):
@@ -652,6 +587,7 @@ def eliminate(now_info,outer):
 def asset_sort():
 	#global term
 	term=[]
+	capacity_result = [[],[],[]]
 	for i in [1,2,3,4,5,6,7,8,9]:
 		f=open(path+chr(48+i)+".json","r")
 		temp_txt=f.read()
@@ -663,7 +599,24 @@ def asset_sort():
 			final_cash=now_info['cash']
 		term.append([final_cash,i,now_info["type"]])
 
+	f=open(path+"capacity_rank.json","r")
+	temp_txt=f.read()
+	capacity_rank=json.loads(temp_txt)
+	f.close()
+	for k in [0,1,2]:
+		cap = capacity_rank["capacity_result"][k][gl.game_round-1]
+		for i in range(len(cap)):
+			c = cap[i][0]
+			if len(cap[i][2]) != 0:
+				num = cap[i][2][0][0]
+				price = cap[i][2][0][1]
+				proportion = cap[i][2][0][2]
+				total = [c, num, price, proportion]
+			else:
+				total = [c, 0, 0, 0]
+			capacity_result[k].append(total)
+
 	term.sort(reverse = True)
-	return term
+	return term, capacity_result
 
 

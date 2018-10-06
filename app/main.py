@@ -240,10 +240,12 @@ def gongnengka():	#功能卡购买
 		return redirect(url_for("gongnengka"))
 	return render_template("gongnengka.html",form = form,round =gl.game_round,capacity=gl.capacity)
 
+
 @app.route("/rank")
 def rank():
-	term = dealwith.asset_sort()
-	return render_template("rank.html",round = gl.game_round,term = term,material_a=material_a[gl.game_round-1],capacity=capacity[gl.game_round-1],max_price=gl.max_price)
-	
+	term, capacity_result = dealwith.asset_sort()
+	return render_template("rank.html",round=gl.game_round,term=term,material_a=material_a[gl.game_round-1],capacity_result=capacity_result,max_price=gl.max_price)
+
+
 if __name__ == '__main__':
 	app.run(debug = True)

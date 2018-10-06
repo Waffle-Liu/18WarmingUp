@@ -30,9 +30,10 @@
 									<td><span class="totalmoney">{{ Accountdata["produce_k"] }}</span></td>
 								</tr>
 								{% for material in Accountdata["material"] %}
+					 				{% if material[2] != 0 %}
 					 				<tr>
-										<td>产品序号</td>
-										<td><span class="resource">{{ Accountdata["material"].index(material)+1 }}</span></td>
+										<td>----------</td>
+										<td></td>
 									</tr>
 									<tr>
 										<td>所在市场</td>
@@ -58,11 +59,16 @@
 										<td>数量</td>
 										<td><span class="resource">{{ material[2] }}</span>万单位</td>
 									</tr>
+					 				{% endif %}
 								{% endfor %}
 					 		{% endif %}
 							{% if Accountdata["type"]==1 %}
 								{% for chip in Accountdata["chip"] %}
 					 				{% if chip[2] != 0 %}
+					 				<tr>
+										<td>----------</td>
+										<td></td>
+									</tr>
 									<tr>
 										<td>所在市场</td>
 										{% if chip[0] == 0 %}
