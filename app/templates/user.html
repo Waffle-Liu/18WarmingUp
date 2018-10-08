@@ -111,30 +111,6 @@
 				<!--</ul>-->
 			<!--</div>-->
 
-
-			<!--<div class="info-heading">
-						<h4 class="info-title">投资情况</h4>
-			</div>
-					<div class="info-body">
-						<table class="table">
-							<tr>
-								<td>房地产行业</td>
-								<td><span class="fangchan">{{ Accountdata["invest"][1] }}</span>万元</td>
-							</tr>
-							<tr>
-								<td>新能源行业</td>
-								<td><span class="nengyuan">{{ Accountdata["invest"][2] }}</span>万元</td>
-							</tr>
-							<tr>
-								<td>医疗行业</td>
-								<td><span class="yiliao">{{ Accountdata["invest"][3] }}</span>万元</td>
-							</tr>
-							<tr>
-								<td>物流行业</td>
-								<td><span class="wuliu">{{ Accountdata["invest"][4] }}</span>万元</td>
-							</tr>
-						</table>
-					<!--</div>-->
 		</div>
         <div class="col-md-6 operationzone">
 			{% for message in get_flashed_messages() %}
@@ -258,8 +234,16 @@
                         </tr>
 						{% if Accountdata["type"] == 1 %}
 						<tr>
-                            <td>出售收益</td>
-                            <td>{{ Thislog["gain_sell"] }}万元</td>
+                            <td>南方销售收益</td>
+                            <td>{{ Thislog["south_gain_sell"] }}万元</td>
+                        </tr>
+						<tr>
+                            <td>北方销售收益</td>
+                            <td>{{ Thislog["north_gain_sell"] }}万元</td>
+                        </tr>
+						<tr>
+                            <td>西方销售收益</td>
+                            <td>{{ Thislog["west_gain_sell"] }}万元</td>
                         </tr>
 						{% endif %}
 

@@ -384,7 +384,9 @@ def nextround():
 	# 清算前资金
 	for i in [1,2,3,4,5,6,7,8,9]:
 		log[i]["init_money"] = now_info[i]["cash"]
-		log[i]["gain_sell"] = 0
+		log[i]["south_gain_sell"] = 0
+		log[i]["north_gain_sell"] = 0
+		log[i]["west_gain_sell"] = 0
 		log[i]["retrieve"] = 0
 		log[i]["depreciation"] = 0
 
@@ -432,7 +434,12 @@ def nextround():
 				if price > left and price <= right and k == market:
 					if amount < cap[j][1]:
 						now_info[num]['cash'] += amount * price
-						log[num]["gain_sell"] += amount * price
+						if k == 0:
+							log[num]["south_gain_sell"] += amount * price
+						elif k == 1:
+							log[num]["north_gain_sell"] += amount * price
+						elif k == 2:
+							log[num]["west_gain_sell"] += amount * price
 						if cap[j][1] != 0 and amount != 0:
 							capacity_result['capacity_result'][k][gl.game_round][j][2].append([num, price, round(amount / capacity[k][gl.game_round][j][1], 2)])
 						cap[j][1] -= amount
@@ -440,14 +447,24 @@ def nextround():
 						product_list[i][2] = 0
 					else:
 						now_info[num]['cash'] += cap[j][1] * price
-						log[num]['gain_sell'] += cap[j][1] * price
+						if k == 0:
+							log[num]["south_gain_sell"] += cap[j][1] * price
+						elif k == 1:
+							log[num]["north_gain_sell"] += cap[j][1] * price
+						elif k == 2:
+							log[num]["west_gain_sell"] += cap[j][1] * price
 						if cap[j][1] != 0 and amount != 0:
 							capacity_result['capacity_result'][k][gl.game_round][j][2].append([num, price, round(cap[j][1] / capacity[k][gl.game_round][j][1], 2)])
 						amount -= cap[j][1]
 						cap[j][1] = 0
 					if amount < cap[j+1][1]:
 						now_info[num]['cash'] += amount * price
-						log[num]["gain_sell"] += amount * price
+						if k == 0:
+							log[num]["south_gain_sell"] += amount * price
+						elif k == 1:
+							log[num]["north_gain_sell"] += amount * price
+						elif k == 2:
+							log[num]["west_gain_sell"] += amount * price
 						if cap[j+1][1] != 0 and amount != 0:
 							capacity_result['capacity_result'][k][gl.game_round][j+1][2].append([num, price, round(amount / capacity[k][gl.game_round][j+1][1], 2)])
 						cap[j+1][1] -= amount
@@ -455,18 +472,28 @@ def nextround():
 						product_list[i][2] = 0
 					else:
 						now_info[num]['cash'] += cap[j+1][1] * price
-						log[num]['gain_sell'] += cap[j+1][1] * price
+						if k == 0:
+							log[num]["south_gain_sell"] += cap[j+1][1] * price
+						elif k == 1:
+							log[num]["north_gain_sell"] += cap[j+1][1] * price
+						elif k == 2:
+							log[num]["west_gain_sell"] += cap[j+1][1] * price
 						if cap[j+1][1] != 0 and amount != 0:
 							capacity_result['capacity_result'][k][gl.game_round][j+1][2].append([num, price, round(cap[j+1][1] / capacity[k][gl.game_round][j+1][1], 2)])
 						amount -= cap[j+1][1]
 						cap[j+1][1] = 0
 					if amount > 0:		# 剩余被系统原价回收
-						now_info[num]["cash"] += amount * firstcost
+						now_info[num]["cash"] += amount * quality
 						product_list[i][2] = 0
 				elif price == 10 and k == market:		# 10作为单独的情况
 					if amount < cap[j][1]:
 						now_info[num]['cash'] += amount * price
-						log[num]["gain_sell"] += amount * price
+						if k == 0:
+							log[num]["south_gain_sell"] += amount * price
+						elif k == 1:
+							log[num]["north_gain_sell"] += amount * price
+						elif k == 2:
+							log[num]["west_gain_sell"] += amount * price
 						if cap[j][1] != 0 and amount != 0:
 							capacity_result['capacity_result'][k][gl.game_round][j][2].append([num, price, round(amount / capacity[k][gl.game_round][j][1], 2)])
 						cap[j][1] -= amount
@@ -474,15 +501,22 @@ def nextround():
 						product_list[i][2] = 0
 					else:
 						now_info[num]['cash'] += cap[j][1] * price
-						log[num]['gain_sell'] += cap[j][1] * price
+						if k == 0:
+							log[num]["south_gain_sell"] += cap[j][1] * price
+						elif k == 1:
+							log[num]["north_gain_sell"] += cap[j][1] * price
+						elif k == 2:
+							log[num]["west_gain_sell"] += cap[j][1] * price
 						if cap[j][1] != 0 and amount != 0:
 							capacity_result['capacity_result'][k][gl.game_round][j][2].append([num, price, round(cap[j][1] / capacity[k][gl.game_round][j][1], 2)])
 						amount -= cap[j][1]
 						cap[j][1] = 0
 					if amount > 0:		# 剩余被系统原价回收
-						now_info[num]["cash"] += amount * firstcost
+						now_info[num]["cash"] += amount * quality
 						product_list[i][2] = 0
-				log[num]["gain_sell"] = round(log[num]["gain_sell"], 1)
+				log[num]["south_gain_sell"] = round(log[num]["south_gain_sell"], 1)
+				log[num]["north_gain_sell"] = round(log[num]["north_gain_sell"], 1)
+				log[num]["west_gain_sell"] = round(log[num]["west_gain_sell"], 1)
 
 		for t in range(len(cap)-1):
 			result = capacity_result['capacity_result'][k][gl.game_round][t][2]
@@ -565,7 +599,7 @@ def takeproportion(result):
 def selloff(now_info):
 	if now_info["type"]==0:
 		for i in range(len(now_info["material"])):
-			now_info["cash"] += now_info["material"][i][1] * now_info["material"][i][2] #成本价回收
+			now_info["cash"] += now_info["material"][i][3] * now_info["material"][i][2]
 	# else:
 	# 	for i in range(len(now_info["chip"])):
 	# 		now_info["cash"] += now_info["chip"][i][1]		 #成本价回收
