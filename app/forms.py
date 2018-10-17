@@ -43,6 +43,11 @@ class yanfa(Form):   #研发投入表单，输入研发投入
 	research_amount = StringField("请输入研发投入/万元",validators=[Regexp(r'\d*')],default=0)
 	submit = SubmitField("确定投入")
 
+class daikuan(Form): #贷款表单，输入贷款、还款金额
+	loan_amount = StringField("请输入贷款金额/万元",validators=[Regexp(r'\d*')],default=0)
+	repayment_amount = StringField("请输入还款金额／万元",validators=[Regexp(r'\d*')],default=0)
+	submit = SubmitField("确定还贷")
+
 #
 #
 #--------------------------管理员表单----------------------------------------#

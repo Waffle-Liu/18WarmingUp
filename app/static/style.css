@@ -12,6 +12,6 @@ body,button, input, select, textarea,h1 ,h2, h3, h4, h5, h6,p { font-family: Mic
 .info-body  tr{border-bottom:solid 2px GREY;border-bottom-style:dotted;margin-left:0;font-size:16px;}
 .info-title{color:WHITE;margin-left:20px;}
 #op-head{border-radius: 10px;height:46px}
-.touzi, .caigou,.shengchan, .xiaoshou{border:solid 15px white;padding:13px;border-radius:10px}
+.touzi, .caigou, .shengchan, .daikuan, .xiaoshou{border:solid 15px white;padding:13px;border-radius:10px}
 a {background-color:rgb(143,4,1);color:WHITE}
 .log{position:relative;right:140px;width:15%}

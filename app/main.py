@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 from flask import  Flask,render_template,session,url_for,redirect,flash,json,request
 from flask_bootstrap import Bootstrap
-from forms import LoginForm,touzi,caigou,xiaoshou,shengchan,yanfa,gongnengkaForm,debtform,trade,fineform,nextform   #导入表单
+from forms import LoginForm,touzi,caigou,xiaoshou,shengchan,yanfa,gongnengkaForm,debtform,trade,fineform,nextform,daikuan   #导入表单
 from gl import material_a,material_b,capacity,coef_k
 import dealwith
 from dealwith import path,OperationFail
@@ -50,6 +50,7 @@ def index():
 	Xiaoshouform = xiaoshou()
 	Shengchanform = shengchan()
 	Yanfaform = yanfa()
+	Daikuanform = daikuan()
 	num = session.get("number")
 	
 	if request.method == 'POST' :		
@@ -73,13 +74,21 @@ def index():
 				flash("%r" % e)						#异常
 			finally:
 				return redirect(url_for("index"))
+		elif form_name == "确定还贷" and Daikuanform.validate_on_submit():
+			amount_loan = float(Daikuanform.loan_amount.data)
+			amount_repayment = float(Daikuanform.repayment_amount.data)
+			try:
+				dealwith.loaninvest(amount_loan,amount_repayment,num)
+			except OperationFail as e:
+				flash("%r" % e)						#异常
+			finally:
+				return redirect(url_for("index"))
 		else:               #提交第三个表单：生产
 			position = int(Shengchanform.position.data)
-			if Shengchanform.produceamount.data and Shengchanform.produceprice.data:
-				amount = float(Shengchanform.produceamount.data)
+			amount = float(Shengchanform.produceamount.data)
+			if Shengchanform.produceprice.data:
 				firstcost = float(Shengchanform.produceprice.data)
 			else:
-				amount = 0.0
 				firstcost = 0.0
 			if Shengchanform.sellprice.data and Shengchanform.producequality.data:
 				sellprice = float(Shengchanform.sellprice.data)
@@ -111,7 +120,7 @@ def index():
 	# print(dealwith.game_round)
 	print("game_round:")
 	print(gl.game_round)
-	return render_template("user.html",Accountdata=now_info,Shengchanform=Shengchanform,Xiaoshouform=Xiaoshouform,Yanfaform=Yanfaform,game_round = gl.game_round, material_a = material_a ,material_b = material_b,Thislog = log[session["number"]],chip_space=gl.chip_space,product_space=gl.product_space)
+	return render_template("user.html",Accountdata=now_info,Shengchanform=Shengchanform,Xiaoshouform=Xiaoshouform,Yanfaform=Yanfaform,Daikuanform = Daikuanform,game_round = gl.game_round, material_a = material_a ,material_b = material_b,Thislog = log[session["number"]],chip_space=gl.chip_space,product_space=gl.product_space)
 
 
 @app.route("/seller/<int:num>",methods=["GET","POST"])

@@ -67,6 +67,9 @@ end_round = 5
 #梯度回收最高成交价
 max_price=0
 
+#利率
+interest = 1.1
+
 dir = os.path.dirname(os.path.abspath(__file__))
 path = os.path.join(dir,"data")+os.path.sep
 f=open(path+"game.txt","r")  #duqu game

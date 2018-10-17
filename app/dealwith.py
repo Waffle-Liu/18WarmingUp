@@ -70,7 +70,7 @@ def purchase(total,num):
 		if now_info['cash'] < material_a[gl.game_round]*total:
 			raise OperationFail("现金不足，操作失败")
 		else:
-			now_info['cash']-=material_a[gl.game_round]*total   #定价曲线函数 待做》》》》》》》》》》》》》》》》》》》》》》
+			now_info['cash']-=material_a[gl.game_round]*total
 	else:
 		if now_info['cash'] < (material_b[gl.game_round] * total):
 			raise OperationFail("现金不足，操作失败")
@@ -104,8 +104,10 @@ def produce(num,total,price,sellprice,position,quality):
 		for i in range(len(now_info["chip"])):		#找到这款芯片
 			if position == now_info["chip"][i][0] and quality == now_info["chip"][i][3]:
 				firstcost = now_info["chip"][i][1]
-				total = now_info["chip"][i][2]
-				now_info["chip"][i][2] = 0.0
+				#total = now_info["chip"][i][2]
+				if total > now_info["chip"][i][2]:
+					raise OperationFail("该市场上此原料不足,操作失败")
+				now_info["chip"][i][2] -= total
 				flag1 = 1
 				break
 		if flag1 == 0:
@@ -195,29 +197,31 @@ def login(num,types):
 
 
 #借贷 total为贷款数额，interest为利率，period为还款时间，num1为放贷公司编号，num2为借贷公司编号
-def getloan(total,interest,period,num1,num2):
-	f1=open(path+chr(48+num1)+".json","r")
-	f2=open(path+chr(48+num2)+".json","r")
-	temp1=f1.read()
-	temp2=f2.read()
-	info1=json.loads(temp1)
-	info2=json.loads(temp2)
-	f1.close()
-	f2.close()
-	if info1["cash"] < total:  #没钱可以贷
-		raise OperationFail("现金不足，操作失败")
-	info1['cash']-=total
-	info2['cash']+=total
-	info1['loan'].append([total,interest,period,num2])
-	info2['loan'].append([-total,interest,period,num1])
-	shutil.copyfile(path+chr(48+num1)+".json",path+chr(48+num1)+"_bak.json")
-	shutil.copyfile(path+chr(48+num2)+".json",path+chr(48+num2)+"_bak.json")
-	f1=open(path+chr(48+num1)+".json","w")
-	f2=open(path+chr(48+num2)+".json","w")
-	json.dump(info1,f1)
-	json.dump(info2,f2)
-	f1.close()
-	f2.close()
+#def getloan(total,interest,period,num1,num2):
+#	f1=open(path+chr(48+num1)+".json","r")
+#	f2=open(path+chr(48+num2)+".json","r")
+#	temp1=f1.read()
+#	temp2=f2.read()
+#	info1=json.loads(temp1)
+#	info2=json.loads(temp2)
+#	f1.close()
+#	f2.close()
+#	if info1["cash"] < total:  #没钱可以贷
+#		raise OperationFail("现金不足，操作失败")
+#	info1['cash']-=total
+#	info2['cash']+=total
+#	info1['loan'].append([total,interest,period,num2])
+#	info2['loan'].append([-total,interest,period,num1])
+#	shutil.copyfile(path+chr(48+num1)+".json",path+chr(48+num1)+"_bak.json")
+#	shutil.copyfile(path+chr(48+num2)+".json",path+chr(48+num2)+"_bak.json")
+#	f1=open(path+chr(48+num1)+".json","w")
+#	f2=open(path+chr(48+num2)+".json","w")
+#	json.dump(info1,f1)
+#	json.dump(info2,f2)
+#	f1.close()
+#	f2.close()
+
+
 
 
 #碳纤维交易 position为市场位置，total为碳纤维交易数量，sellprice为交易单价,quality为质量，num1为出售公司，num2为购买公司
@@ -357,6 +361,21 @@ def researchinvest(amount_research,num):
 	json.dump(now_info, f)
 	f.close()
 
+#贷款投入
+def loaninvest(amount_loan,amount_repayment,num):
+	f = open(path + chr(48 + num) + ".json", "r")
+	temp_txt = f.read()
+	now_info = json.loads(temp_txt)
+	f.close()
+	now_info['cash']+=amount_loan
+	now_info['cash']-=amount_repayment
+	now_info['loan'][0][0] += amount_loan
+	now_info['loan'][0][0] -= amount_repayment
+	now_info['loan'][0][1] = 1.1
+	shutil.copyfile(path+chr(48+num)+".json",path+chr(48+num)+"_bak.json")
+	f=open(path+chr(48+num)+".json","w")
+	json.dump(now_info,f)
+	f.close()
 
 	
 # 进入下一轮 
@@ -530,11 +549,11 @@ def nextround():
 			for j in range(len(now_info[i]['material'])):
 				now_info[i]['cash'] -= store_fee * now_info[i]['material'][j][2]
 				log[i]["depreciation"] += store_fee * now_info[i]['material'][j][2]
-		# elif now_info[i]['type'] == 1:
-		# 	now_info[i]['product'] = []
-		# 	for j in range(len(now_info[i]['chip'])):
-		# 		now_info[i]['cash'] -= store_fee * now_info[i]['chip'][j][2]
-		# 		log[i]["depreciation"] += store_fee * now_info[i]['chip'][j][2]
+		elif now_info[i]['type'] == 1:
+			now_info[i]['product'] = []
+			for j in range(len(now_info[i]['chip'])):
+				now_info[i]['cash'] -= store_fee * now_info[i]['chip'][j][2]
+				log[i]["depreciation"] += store_fee * now_info[i]['chip'][j][2]
 
 	# 还款结算
 	# for i in [1,2,3,4,5,6,7,8,9]:
@@ -544,7 +563,15 @@ def nextround():
 	# 			log[i]["loan"] += round(now_info[i]["loan"][j][0] * (1+now_info[i]["loan"][j][1]),1)
 	# 			now_info[i]["loan"][j][0] = 0
 	# 	now_info[i]["cash"] += log[i]["loan"]
-		
+
+	# 还款结算
+	for i in [1,2,3,4,5,6,7,8,9]:
+		log[i]["loan"] = 0
+		for j in range(len(now_info[i]["loan"])):
+			if now_info[i]["loan"][j][0] != 0 and now_info[i]["loan"][j][1] != -1:
+				now_info[i]["loan"][j][0] = round(now_info[i]["loan"][j][0] * now_info[i]["loan"][j][1],1)
+
+
 	# 破产
 	for i in [1,2,3,4,5,6,7,8,9]:
 		if now_info[i]["cash"] < 0:
@@ -600,9 +627,11 @@ def selloff(now_info):
 	if now_info["type"]==0:
 		for i in range(len(now_info["material"])):
 			now_info["cash"] += now_info["material"][i][3] * now_info["material"][i][2]
-	# else:
-	# 	for i in range(len(now_info["chip"])):
-	# 		now_info["cash"] += now_info["chip"][i][1]		 #成本价回收
+	else:
+		for i in range(len(now_info["chip"])):
+			now_info["cash"] += now_info["chip"][i][3] * now_info["chip"][i][2]	 #成本价回收
+
+	now_info["cash"] -= now_info["loan"][0][0]
 	now_info["material"] = []
 	now_info["chip"] = []
 	now_info["product"] = []
