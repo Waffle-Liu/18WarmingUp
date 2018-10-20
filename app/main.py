@@ -56,7 +56,7 @@ def index():
 	if request.method == 'POST' :		
 		form_name = request.form["submit"]
 
-		if form_name == '确定' and Xiaoshouform.validate_on_submit():  #提交第二个表单：销售投入
+		if form_name == '确定投放' and Xiaoshouform.validate_on_submit():  #提交第二个表单：销售投入
 			amount_south = float(Xiaoshouform.investamount_south.data)
 			amount_north = float(Xiaoshouform.investamount_north.data)
 			amount_west = float(Xiaoshouform.investamount_west.data)

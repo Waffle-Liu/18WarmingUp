@@ -170,6 +170,7 @@
         <th>公司</th>
         <th>产品卖价</th>
 		<th>所占比例</th>
+		<th>销售投入</th>
     </tr>
     </thead>
 	{% for info in capacity_result[0] %}
@@ -179,7 +180,9 @@
 		<td>{{ info[1] }}</td>
 		<td>{{ info[2] }}</td>
 		<td>{{ info[3] }}</td>
+		<td>{{ info[4] }}</td>
 		{% else %}
+		<td></td>
 		<td></td>
 		<td></td>
 		<td></td>
@@ -197,6 +200,7 @@
         <th>公司</th>
         <th>产品卖价</th>
 		<th>所占比例</th>
+		<th>销售投入</th>
     </tr>
     </thead>
 	{% for info in capacity_result[1] %}
@@ -206,7 +210,9 @@
 		<td>{{ info[1] }}</td>
 		<td>{{ info[2] }}</td>
 		<td>{{ info[3] }}</td>
+		<td>{{ info[4] }}</td>
 		{% else %}
+		<td></td>
 		<td></td>
 		<td></td>
 		<td></td>
@@ -224,6 +230,7 @@
         <th>公司</th>
         <th>产品卖价</th>
 		<th>所占比例</th>
+		<th>销售投入</th>
     </tr>
     </thead>
 	{% for info in capacity_result[2] %}
@@ -233,7 +240,9 @@
 		<td>{{ info[1] }}</td>
 		<td>{{ info[2] }}</td>
 		<td>{{ info[3] }}</td>
+		<td>{{ info[4] }}</td>
 		{% else %}
+		<td></td>
 		<td></td>
 		<td></td>
 		<td></td>

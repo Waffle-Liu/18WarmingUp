@@ -128,9 +128,9 @@ def produce(num,total,price,sellprice,position,quality):
 		quality = now_info['produce_k'] * price
 		quality = round(quality, 2)
 		for i in range(len(now_info["material"])):
-			if position == now_info["material"][i][0] and price == now_info["material"][i][1] and quality == now_info["material"][i][3]:
+			if position == now_info["material"][i][0] and quality == now_info["material"][i][3]:
 				now_info["material"][i][2] += total
-				now_info["material"][i][1] = 0.0
+				# now_info["material"][i][1] = 0.0
 				flag2 = 1
 				break
 		if flag2 == 0:
@@ -250,24 +250,25 @@ def buychip(position,total,sellprice,quality,num1,num2):
 	if flag1 == 0:
 		raise OperationFail("该市场无此原材料，操作失败")
 
-	# if info2['storage']-4*info2['product']-2*info2['chip']-2*total<0:
-	# 	raise OperationFail("购买方库存不足，操作失败")
 	info1['cash'] += total * sellprice
 	info2['cash'] -= total * sellprice
 
 	for i in range(len(info1["material"])):
 		if position == info1['material'][i][0] and quality == info1['material'][i][3]:
 			info1['material'][i][2] -= total
-
+			info1['material'][i][2] = round(info1['material'][i][2], 2)
 	flag2 = 0
 	for i in range(len(info2["chip"])):
 		if position == info2['chip'][i][0] and quality == info2['chip'][i][3]:
 			flag2 = 1
 			info2['chip'][i][2] += total
+			info2['chip'][i][2] = round(info2['chip'][i][2], 2)
 	if flag2 == 0:
 		chip = [position, firstcost, total, quality]
 		info2['chip'].append(chip)
 
+	info1['cash'] = round(info1['cash'], 1)
+	info2['cash'] = round(info2['cash'], 1)
 	shutil.copyfile(path+chr(48+num1)+".json",path+chr(48+num1)+"_bak.json")
 	shutil.copyfile(path+chr(48+num2)+".json",path+chr(48+num2)+"_bak.json")
 	f1=open(path+chr(48+num1)+".json","w")
@@ -367,9 +368,13 @@ def loaninvest(amount_loan,amount_repayment,num):
 	temp_txt = f.read()
 	now_info = json.loads(temp_txt)
 	f.close()
-	now_info['cash']+=amount_loan
-	now_info['cash']-=amount_repayment
+	now_info['cash'] += amount_loan
+	if now_info['cash'] < amount_repayment:
+		raise OperationFail("现金不足，无法还款")
+	now_info['cash'] -= amount_repayment
 	now_info['loan'][0][0] += amount_loan
+	if now_info['loan'][0][0] < amount_repayment:
+		raise OperationFail("还款数额超限，操作失败")
 	now_info['loan'][0][0] -= amount_repayment
 	now_info['loan'][0][1] = 1.1
 	shutil.copyfile(path+chr(48+num)+".json",path+chr(48+num)+"_bak.json")
@@ -449,6 +454,7 @@ def nextround():
 				price = product_list[i][3]
 				num = product_list[i][4]
 				quality = product_list[i][6]
+				sale = [now_info[num]['sale'][0], now_info[num]['sale'][1], now_info[num]['sale'][2]]
 
 				if price > left and price <= right and k == market:
 					if amount < cap[j][1]:
@@ -460,7 +466,7 @@ def nextround():
 						elif k == 2:
 							log[num]["west_gain_sell"] += amount * price
 						if cap[j][1] != 0 and amount != 0:
-							capacity_result['capacity_result'][k][gl.game_round][j][2].append([num, price, round(amount / capacity[k][gl.game_round][j][1], 2)])
+							capacity_result['capacity_result'][k][gl.game_round][j][2].append([num, price, round(amount / capacity[k][gl.game_round][j][1], 2), sale[k]])
 						cap[j][1] -= amount
 						amount = 0
 						product_list[i][2] = 0
@@ -473,7 +479,7 @@ def nextround():
 						elif k == 2:
 							log[num]["west_gain_sell"] += cap[j][1] * price
 						if cap[j][1] != 0 and amount != 0:
-							capacity_result['capacity_result'][k][gl.game_round][j][2].append([num, price, round(cap[j][1] / capacity[k][gl.game_round][j][1], 2)])
+							capacity_result['capacity_result'][k][gl.game_round][j][2].append([num, price, round(cap[j][1] / capacity[k][gl.game_round][j][1], 2), sale[k]])
 						amount -= cap[j][1]
 						cap[j][1] = 0
 					if amount < cap[j+1][1]:
@@ -485,7 +491,7 @@ def nextround():
 						elif k == 2:
 							log[num]["west_gain_sell"] += amount * price
 						if cap[j+1][1] != 0 and amount != 0:
-							capacity_result['capacity_result'][k][gl.game_round][j+1][2].append([num, price, round(amount / capacity[k][gl.game_round][j+1][1], 2)])
+							capacity_result['capacity_result'][k][gl.game_round][j+1][2].append([num, price, round(amount / capacity[k][gl.game_round][j+1][1], 2), sale[k]])
 						cap[j+1][1] -= amount
 						amount = 0
 						product_list[i][2] = 0
@@ -498,11 +504,11 @@ def nextround():
 						elif k == 2:
 							log[num]["west_gain_sell"] += cap[j+1][1] * price
 						if cap[j+1][1] != 0 and amount != 0:
-							capacity_result['capacity_result'][k][gl.game_round][j+1][2].append([num, price, round(cap[j+1][1] / capacity[k][gl.game_round][j+1][1], 2)])
+							capacity_result['capacity_result'][k][gl.game_round][j+1][2].append([num, price, round(cap[j+1][1] / capacity[k][gl.game_round][j+1][1], 2), sale[k]])
 						amount -= cap[j+1][1]
 						cap[j+1][1] = 0
 					if amount > 0:		# 剩余被系统原价回收
-						now_info[num]["cash"] += amount * quality
+						now_info[num]["cash"] += amount * quality * 0.5
 						product_list[i][2] = 0
 				elif price == 10 and k == market:		# 10作为单独的情况
 					if amount < cap[j][1]:
@@ -514,7 +520,7 @@ def nextround():
 						elif k == 2:
 							log[num]["west_gain_sell"] += amount * price
 						if cap[j][1] != 0 and amount != 0:
-							capacity_result['capacity_result'][k][gl.game_round][j][2].append([num, price, round(amount / capacity[k][gl.game_round][j][1], 2)])
+							capacity_result['capacity_result'][k][gl.game_round][j][2].append([num, price, round(amount / capacity[k][gl.game_round][j][1], 2), sale[k]])
 						cap[j][1] -= amount
 						amount = 0
 						product_list[i][2] = 0
@@ -527,11 +533,11 @@ def nextround():
 						elif k == 2:
 							log[num]["west_gain_sell"] += cap[j][1] * price
 						if cap[j][1] != 0 and amount != 0:
-							capacity_result['capacity_result'][k][gl.game_round][j][2].append([num, price, round(cap[j][1] / capacity[k][gl.game_round][j][1], 2)])
+							capacity_result['capacity_result'][k][gl.game_round][j][2].append([num, price, round(cap[j][1] / capacity[k][gl.game_round][j][1], 2), sale[k]])
 						amount -= cap[j][1]
 						cap[j][1] = 0
 					if amount > 0:		# 剩余被系统原价回收
-						now_info[num]["cash"] += amount * quality
+						now_info[num]["cash"] += amount * quality * 0.5
 						product_list[i][2] = 0
 				log[num]["south_gain_sell"] = round(log[num]["south_gain_sell"], 1)
 				log[num]["north_gain_sell"] = round(log[num]["north_gain_sell"], 1)
@@ -554,6 +560,7 @@ def nextround():
 			for j in range(len(now_info[i]['chip'])):
 				now_info[i]['cash'] -= store_fee * now_info[i]['chip'][j][2]
 				log[i]["depreciation"] += store_fee * now_info[i]['chip'][j][2]
+		now_info[i]['cash'] = round(now_info[i]['cash'], 1)
 
 	# 还款结算
 	# for i in [1,2,3,4,5,6,7,8,9]:
@@ -586,7 +593,7 @@ def nextround():
 		for i in [1,2,3,4,5,6,7,8,9]:
 			selloff(now_info[i])
 			if now_info[i]["result"]!=1:
-				now_info[i]["cash"]=round(now_info[i]["cash"]*now_info[i]["result"],2)
+				now_info[i]["cash"]=round(now_info[i]["cash"]*now_info[i]["result"],1)
 
 	#游戏结束
 	if gl.game_round == end_round:
@@ -626,12 +633,13 @@ def takeproportion(result):
 def selloff(now_info):
 	if now_info["type"]==0:
 		for i in range(len(now_info["material"])):
-			now_info["cash"] += now_info["material"][i][3] * now_info["material"][i][2]
+			now_info["cash"] += round(now_info["material"][i][3] * now_info["material"][i][2] * 0.5, 1)
 	else:
 		for i in range(len(now_info["chip"])):
-			now_info["cash"] += now_info["chip"][i][3] * now_info["chip"][i][2]	 #成本价回收
+			now_info["cash"] += round(now_info["chip"][i][3] * now_info["chip"][i][2] * 0.5, 1)	 #成本价回收
 
 	now_info["cash"] -= now_info["loan"][0][0]
+	now_info["loan"][0][0] = 0
 	now_info["material"] = []
 	now_info["chip"] = []
 	now_info["product"] = []
@@ -674,12 +682,13 @@ def asset_sort():
 				num = cap[i][2][0][0]
 				price = cap[i][2][0][1]
 				proportion = cap[i][2][0][2]
-				total = [c, num, price, proportion]
+				sale = cap[i][2][0][3]
+				total = [c, num, price, proportion, sale]
 			else:
-				total = [c, 0, 0, 0]
+				total = [c, 0, 0, 0, 0]
 			capacity_result[k].append(total)
 
-	term.sort(reverse = True)
+	term.sort(reverse=True)
 	return term, capacity_result
 
 

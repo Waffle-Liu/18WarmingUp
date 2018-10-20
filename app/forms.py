@@ -30,14 +30,14 @@ class shengchan(Form):   #生产页面表单，输入生产量
 	produceprice = StringField("请输入每件产品的成本/元",validators=[Regexp(r'\d*')],default=0)
 	producequality = StringField("请输入每件产品的质量/元", validators=[Regexp(r'\d*')], default=0)
 	sellprice = StringField("请输入每件产品的卖价/元", validators=[Regexp(r'\d*')], default=0)
-	submit = SubmitField("确定生产")
+	submit = SubmitField("确定")
 
 
 class xiaoshou(Form):   #销售投入表单，输入销售投入
 	investamount_south = StringField("请输入南方广告投入/万元",validators=[Regexp(r'\d*')],default=0)
 	investamount_north = StringField("请输入北方广告投入/万元", validators=[Regexp(r'\d*')], default=0)
 	investamount_west = StringField("请输入西方广告投入/万元", validators=[Regexp(r'\d*')], default=0)
-	submit = SubmitField("确定")
+	submit = SubmitField("确定投放")
 
 class yanfa(Form):   #研发投入表单，输入研发投入
 	research_amount = StringField("请输入研发投入/万元",validators=[Regexp(r'\d*')],default=0)
