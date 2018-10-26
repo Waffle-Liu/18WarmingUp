@@ -1,1 +1,1 @@
-{"id": 1, "loan": [[133.1, 1.1, 0, 0]], "chip": [], "type": 0, "material": [[0, 50.0, 5.0, 52.0]], "invest": [0, 0, 0, 0, 0], "sale": [0, 0, 0], "research": 0, "produce_k": 0.94, "cash": 975.0, "result": 1, "product": [], "storage": 300, "fee": 0, "store_cost": 0, "curr_price": 0, "value": 1000}
+{"id": 1, "loan": [[0, 0, 0, 0]], "chip": [], "type": 0, "material": [], "invest": [0, 0, 0, 0, 0], "sale": [0, 0, 0], "research": 0, "produce_k": 1, "cash": 990.0, "result": 1, "product": [], "storage": 300, "fee": 0, "store_cost": 0, "curr_price": 0, "value": 1000}
